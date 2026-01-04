@@ -1,0 +1,4 @@
+Rapport de validation - 2026-01-04 21:01:16.075686
+Succès: False
+Erreurs: 1
+- Entrée 0: Action invalide: STARTUP, Status invalide: INFO, 'input_prompt' manquant dans details, 'output_response' manquant dans details
