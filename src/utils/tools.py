@@ -1,50 +1,233 @@
 import os
 import subprocess
 import sys
+import json
+from datetime import datetime
+from enum import Enum
 from typing import List, Dict, Any
 from pathlib import Path
 
+class ActionType(Enum):
+    ANALYSIS = "analysis"
+    FIX = "fix"
+    DEBUG = "debug"
+    VERIFICATION = "verification"
+
+def log_experiment(
+    agent_name: str,
+    model_used: str,
+    action: ActionType,
+    details: Dict[str, Any],
+    status: str
+) -> None:
+    """
+    Fonction de logging pour experiment_data.json
+    """
+    try:
+        # CORRECTION ULTIME: S'assurer que details est un dict avec TOUS les champs requis
+        if not isinstance(details, dict):
+            details = {"input_prompt": str(details), "output_response": "N/A"}
+        else:
+            # Faire une COPIE pour ne pas modifier l'original
+            details = details.copy()
+        
+        # GARANTIR ABSOLUMENT les champs obligatoires avec des valeurs significatives
+        required_fields = ["input_prompt", "output_response"]
+        
+        # Pour input_prompt: utiliser une valeur par défaut intelligente
+        if "input_prompt" not in details:
+            # Essayer de deviner le prompt à partir du contexte
+            tool_used = details.get("tool_used", "unknown_tool")
+            file_info = details.get("file_analyzed") or details.get("file_modified") or details.get("test_path") or details.get("directory") or "unknown_file"
+            details["input_prompt"] = f"Exécution de {tool_used} sur {file_info}"
+        
+        # Pour output_response: utiliser une valeur par défaut
+        if "output_response" not in details:
+            # Si on a une clé 'erreur' ou 'resultat', l'utiliser
+            if "erreur" in details:
+                details["output_response"] = f"Erreur: {details['erreur']}"
+            elif "resultat" in details:
+                details["output_response"] = str(details["resultat"])
+            else:
+                # Sinon, message générique basé sur le statut
+                details["output_response"] = f"Action {action.value} terminée avec statut: {status}"
+        
+        # Créer l'entrée de log
+        log_entry = {
+            "timestamp": datetime.now().isoformat(),
+            "agent_name": agent_name,
+            "model_used": model_used,
+            "action": action.value,
+            "details": details,
+            "status": status
+        }
+        
+        # S'assurer que le répertoire logs existe
+        log_dir = "logs"
+        os.makedirs(log_dir, exist_ok=True)
+        
+        # Chemin du fichier de logs
+        log_file = os.path.join(log_dir, "experiment_data.json")
+        
+        # Lire les logs existants ou créer une nouvelle liste
+        if os.path.exists(log_file):
+            try:
+                with open(log_file, 'r', encoding='utf-8') as f:
+                    logs = json.load(f)
+                    
+                # CORRECTION CRITIQUE: Nettoyer les anciens logs qui n'ont pas les champs requis
+                cleaned_logs = []
+                for log in logs:
+                    log_details = log.get("details", {})
+                    if not isinstance(log_details, dict):
+                        log_details = {"input_prompt": "Ancien log formaté", "output_response": str(log_details)}
+                    elif "input_prompt" not in log_details or "output_response" not in log_details:
+                        # Rétro-ajouter les champs manquants aux anciens logs
+                        if not isinstance(log_details, dict):
+                            log_details = {}
+                        
+                        if "input_prompt" not in log_details:
+                            log_details["input_prompt"] = f"Ancien log - {log.get('action', 'unknown')}"
+                        if "output_response" not in log_details:
+                            log_details["output_response"] = f"Statut: {log.get('status', 'unknown')}"
+                    
+                    # Mettre à jour les détails nettoyés
+                    log["details"] = log_details
+                    cleaned_logs.append(log)
+                
+                logs = cleaned_logs
+                
+            except (json.JSONDecodeError, FileNotFoundError):
+                logs = []
+        else:
+            logs = []
+        
+        # Ajouter la nouvelle entrée
+        logs.append(log_entry)
+        
+        # Écrire dans le fichier
+        with open(log_file, 'w', encoding='utf-8') as f:
+            json.dump(logs, f, indent=2, default=str)
+        
+        # Afficher un message de confirmation (optionnel)
+        print(f"[LOG] {agent_name} - {action.value} - {status}")
+        
+    except Exception as e:
+        print(f"⚠️ Erreur de logging: {e}")
 
 def lire_fichier(chemin_fichier: str) -> str:
     """
     Lit le contenu d'un fichier (à partir de son chemin) et le retourne sous forme de chaîne 
     ou un message d'erreur.
-    
-    Args:
-        chemin_fichier (str): Chemin vers le fichier à lire.
-        
-    Returns:
-        str: Contenu du fichier ou message d'erreur.
     """
     try:
         chemin_fichier = os.path.normpath(chemin_fichier)
 
         if not os.path.isfile(chemin_fichier):
-            return f"Erreur: Le chemin '{chemin_fichier}' ne correspond pas à un fichier."
+            resultat = f"Erreur: Le chemin '{chemin_fichier}' ne correspond pas à un fichier."
+            # LOG ERREUR
+            log_experiment(
+                agent_name="Toolsmith_Agent",
+                model_used="python_tool",
+                action=ActionType.ANALYSIS,
+                details={
+                    "input_prompt": f"Lecture du fichier {chemin_fichier}",
+                    "output_response": resultat,
+                    "file_analyzed": chemin_fichier,
+                    "tool_used": "lire_fichier"
+                },
+                status="ERROR"
+            )
+            return resultat
+            
         if not os.path.exists(chemin_fichier):
-            return f"Erreur: Le chemin '{chemin_fichier}' n'existe pas."
+            resultat = f"Erreur: Le chemin '{chemin_fichier}' n'existe pas."
+            # LOG ERREUR
+            log_experiment(
+                agent_name="Toolsmith_Agent",
+                model_used="python_tool",
+                action=ActionType.ANALYSIS,
+                details={
+                    "input_prompt": f"Lecture du fichier {chemin_fichier}",
+                    "output_response": resultat,
+                    "file_analyzed": chemin_fichier,
+                    "tool_used": "lire_fichier"
+                },
+                status="ERROR"
+            )
+            return resultat
 
         with open(chemin_fichier, 'r', encoding='utf-8') as fichier:
-            return fichier.read()
+            contenu = fichier.read()
+        
+        # LOG SUCCÈS
+        log_experiment(
+            agent_name="Toolsmith_Agent",
+            model_used="python_tool",
+            action=ActionType.ANALYSIS,
+            details={
+                "input_prompt": f"Lecture du fichier {chemin_fichier}",
+                "output_response": f"Fichier lu avec succès: {len(contenu)} caractères",
+                "file_analyzed": chemin_fichier,
+                "tool_used": "lire_fichier"
+            },
+            status="SUCCESS"
+        )
+        
+        return contenu
+        
     except PermissionError:
-        return f"Erreur: Permission refusée lors de la lecture du fichier '{chemin_fichier}'."
+        resultat = f"Erreur: Permission refusée lors de la lecture du fichier '{chemin_fichier}'."
+        log_experiment(
+            agent_name="Toolsmith_Agent",
+            model_used="python_tool",
+            action=ActionType.ANALYSIS,
+            details={
+                "input_prompt": f"Lecture du fichier {chemin_fichier}",
+                "output_response": resultat,
+                "file_analyzed": chemin_fichier,
+                "tool_used": "lire_fichier"
+            },
+            status="ERROR"
+        )
+        return resultat
+        
     except UnicodeDecodeError:
-        return f"Erreur: Impossible de décoder le fichier '{chemin_fichier}'. Ce n'est peut-être pas un fichier texte."
+        resultat = f"Erreur: Impossible de décoder le fichier '{chemin_fichier}'. Ce n'est peut-être pas un fichier texte."
+        log_experiment(
+            agent_name="Toolsmith_Agent",
+            model_used="python_tool",
+            action=ActionType.ANALYSIS,
+            details={
+                "input_prompt": f"Lecture du fichier {chemin_fichier}",
+                "output_response": resultat,
+                "file_analyzed": chemin_fichier,
+                "tool_used": "lire_fichier"
+            },
+            status="ERROR"
+        )
+        return resultat
+        
     except Exception as e:
-        return f"Erreur: Une erreur inattendue s'est produite lors de la lecture du fichier '{chemin_fichier}': {str(e)}"
-
+        resultat = f"Erreur: Une erreur inattendue s'est produite lors de la lecture du fichier '{chemin_fichier}': {str(e)}"
+        log_experiment(
+            agent_name="Toolsmith_Agent",
+            model_used="python_tool",
+            action=ActionType.ANALYSIS,
+            details={
+                "input_prompt": f"Lecture du fichier {chemin_fichier}",
+                "output_response": resultat,
+                "file_analyzed": chemin_fichier,
+                "tool_used": "lire_fichier"
+            },
+            status="ERROR"
+        )
+        return resultat
 
 def ecrire_fichier(chemin_fichier: str, contenu: str) -> str:
     """
     Écrit un contenu dans un fichier.
     S'assure que l'écriture se fait uniquement dans le répertoire 'sandbox'.
-    
-    Args:
-        chemin_fichier (str): Chemin vers le fichier où écrire le contenu.
-        contenu (str): Contenu à écrire dans le fichier.
-        
-    Returns:
-        str: Message de succès ou d'erreur.
     """
     try:
         chemin_fichier = os.path.normpath(chemin_fichier)
@@ -55,7 +238,22 @@ def ecrire_fichier(chemin_fichier: str, contenu: str) -> str:
         cible_absolu = os.path.abspath(chemin_fichier)
 
         if not cible_absolu.startswith(sandbox_absolu):
-            return f"Erreur: L'écriture n'est autorisée que dans le répertoire 'sandbox'."
+            resultat = f"Erreur: L'écriture n'est autorisée que dans le répertoire 'sandbox'."
+            # LOG ERREUR SÉCURITÉ
+            log_experiment(
+                agent_name="Toolsmith_Agent",
+                model_used="python_tool",
+                action=ActionType.FIX,
+                details={
+                    "input_prompt": f"Écriture dans le fichier {chemin_fichier}",
+                    "output_response": resultat,
+                    "file_modified": chemin_fichier,
+                    "tool_used": "ecrire_fichier",
+                    "security_breach": True
+                },
+                status="ERROR"
+            )
+            return resultat
         
         os.makedirs(os.path.dirname(chemin_fichier), exist_ok=True)
         
@@ -75,48 +273,140 @@ def ecrire_fichier(chemin_fichier: str, contenu: str) -> str:
             with open(chemin_fichier, 'r', encoding='utf-8') as fichier:
                 contenu_ecrit = fichier.read()
                 if contenu_ecrit == contenu:
-                    return f"Succès: Contenu écrit dans '{chemin_fichier}'."
+                    resultat = f"Succès: Contenu écrit dans '{chemin_fichier}'."
+                    # LOG SUCCÈS
+                    log_experiment(
+                        agent_name="Toolsmith_Agent",
+                        model_used="python_tool",
+                        action=ActionType.FIX,
+                        details={
+                            "input_prompt": f"Écriture dans le fichier {chemin_fichier}",
+                            "output_response": resultat,
+                            "file_modified": chemin_fichier,
+                            "tool_used": "ecrire_fichier",
+                            "content_length": len(contenu),
+                            "backup_created": chemin_sauvegarde is not None
+                        },
+                        status="SUCCESS"
+                    )
+                    return resultat
                 else:
                     # Restaurer depuis la sauvegarde si l'écriture a échoué
                     if chemin_sauvegarde and os.path.exists(chemin_sauvegarde):
                         with open(chemin_sauvegarde, 'r', encoding='utf-8') as fichier_sauvegarde:
                             with open(chemin_fichier, 'w', encoding='utf-8') as fichier_original:
                                 fichier_original.write(fichier_sauvegarde.read())
-                    return f"Erreur: Échec de vérification. Le contenu dans '{chemin_fichier}' ne correspond pas au contenu attendu."
+                    resultat = f"Erreur: Échec de vérification. Le contenu dans '{chemin_fichier}' ne correspond pas au contenu attendu."
+                    # LOG ERREUR VÉRIFICATION
+                    log_experiment(
+                        agent_name="Toolsmith_Agent",
+                        model_used="python_tool",
+                        action=ActionType.FIX,
+                        details={
+                            "input_prompt": f"Écriture dans le fichier {chemin_fichier}",
+                            "output_response": resultat,
+                            "file_modified": chemin_fichier,
+                            "tool_used": "ecrire_fichier",
+                            "verification_failed": True
+                        },
+                        status="ERROR"
+                    )
+                    return resultat
+        else:
+            resultat = f"Erreur: Fichier non créé: {chemin_fichier}"
+            log_experiment(
+                agent_name="Toolsmith_Agent",
+                model_used="python_tool",
+                action=ActionType.FIX,
+                details={
+                    "input_prompt": f"Écriture dans le fichier {chemin_fichier}",
+                    "output_response": resultat,
+                    "file_modified": chemin_fichier,
+                    "tool_used": "ecrire_fichier"
+                },
+                status="ERROR"
+            )
+            return resultat
+            
     except Exception as e:
-        return f"Erreur: Une erreur inattendue s'est produite lors de l'écriture dans le fichier '{chemin_fichier}': {str(e)}"
-
+        resultat = f"Erreur: Une erreur inattendue s'est produite lors de l'écriture dans le fichier '{chemin_fichier}': {str(e)}"
+        log_experiment(
+            agent_name="Toolsmith_Agent",
+            model_used="python_tool",
+            action=ActionType.FIX,
+            details={
+                "input_prompt": f"Écriture dans le fichier {chemin_fichier}",
+                "output_response": resultat,
+                "file_modified": chemin_fichier,
+                "tool_used": "ecrire_fichier"
+            },
+            status="ERROR"
+        )
+        return resultat
 
 def executer_pylint(chemin_fichier: str) -> str:
     """
     Exécute pylint sur un fichier Python donné et retourne les résultats.
-    
-    Args:
-        chemin_fichier (str): Chemin vers le fichier Python à analyser.
-        
-    Returns:
-        str: Sortie de pylint ou message d'erreur.
     """
     try:
         chemin_fichier = os.path.normpath(chemin_fichier)
 
         if not os.path.exists(chemin_fichier):
-            return f"Erreur: Le fichier '{chemin_fichier}' n'existe pas."
+            resultat = f"Erreur: Le fichier '{chemin_fichier}' n'existe pas."
+            log_experiment(
+                agent_name="Toolsmith_Agent",
+                model_used="python_tool",
+                action=ActionType.ANALYSIS,
+                details={
+                    "input_prompt": f"Analyse pylint du fichier {chemin_fichier}",
+                    "output_response": resultat,
+                    "file_analyzed": chemin_fichier,
+                    "tool_used": "executer_pylint"
+                },
+                status="ERROR"
+            )
+            return resultat
         
         if not os.path.isfile(chemin_fichier):
-            return f"Erreur: Le chemin '{chemin_fichier}' ne correspond pas à un fichier."
+            resultat = f"Erreur: Le chemin '{chemin_fichier}' ne correspond pas à un fichier."
+            log_experiment(
+                agent_name="Toolsmith_Agent",
+                model_used="python_tool",
+                action=ActionType.ANALYSIS,
+                details={
+                    "input_prompt": f"Analyse pylint du fichier {chemin_fichier}",
+                    "output_response": resultat,
+                    "file_analyzed": chemin_fichier,
+                    "tool_used": "executer_pylint"
+                },
+                status="ERROR"
+            )
+            return resultat
             
         if not chemin_fichier.endswith('.py'):
-            return f"Erreur: Le fichier '{chemin_fichier}' n'est pas un fichier Python (.py requis)."
+            resultat = f"Erreur: Le fichier '{chemin_fichier}' n'est pas un fichier Python (.py requis)."
+            log_experiment(
+                agent_name="Toolsmith_Agent",
+                model_used="python_tool",
+                action=ActionType.ANALYSIS,
+                details={
+                    "input_prompt": f"Analyse pylint du fichier {chemin_fichier}",
+                    "output_response": resultat,
+                    "file_analyzed": chemin_fichier,
+                    "tool_used": "executer_pylint"
+                },
+                status="ERROR"
+            )
+            return resultat
 
         print(f"[DEBUG] Exécution de pylint sur: {chemin_fichier}")
         
         # Exécuter pylint avec format texte
-        resultat = subprocess.run(
-            ['pylint', '--output-format=text', '--recursive=y', chemin_fichier],
+        resultat_subprocess = subprocess.run(
+            ['pylint', '--output-format=text', chemin_fichier],
             capture_output=True,
             text=True,
-            timeout=30,  # Timeout de 30 secondes
+            timeout=30,
             cwd=str(Path(chemin_fichier).parent) or '.',
             shell=False
         )
@@ -124,86 +414,131 @@ def executer_pylint(chemin_fichier: str) -> str:
         # Construire la sortie complète
         parties_sortie = []
         
-        # Ajouter la sortie de pylint
-        if resultat.stdout:
+        if resultat_subprocess.stdout:
             parties_sortie.append(f"RAPPORT D'ANALYSE PYLINT:\n{'='*50}")
-            parties_sortie.append(resultat.stdout)
+            parties_sortie.append(resultat_subprocess.stdout)
         
-        # Ajouter les erreurs si présentes
-        if resultat.stderr:
+        if resultat_subprocess.stderr:
             parties_sortie.append(f"\nERREURS PYLINT:\n{'='*50}")
-            parties_sortie.append(resultat.stderr)
+            parties_sortie.append(resultat_subprocess.stderr)
         
-        # Ajouter un résumé
         parties_sortie.append(f"\n{'='*50}")
         
-        if resultat.returncode == 0:
+        if resultat_subprocess.returncode == 0:
             parties_sortie.append("RÉSUMÉ PYLINT: Aucun problème détecté !")
+            status_final = "SUCCESS"
         else:
-            # Analyser la sortie pour compter les problèmes
-            lignes = resultat.stdout.split('\n') if resultat.stdout else []
-            erreurs = sum(1 for ligne in lignes if ': E' in ligne)  # Erreurs
-            avertissements = sum(1 for ligne in lignes if ': W' in ligne)  # Avertissements
-            refactorisations = sum(1 for ligne in lignes if ': R' in ligne)  # Suggestions de refactorisation
-            conventions = sum(1 for ligne in lignes if ': C' in ligne)  # Violations de conventions
+            lignes = resultat_subprocess.stdout.split('\n') if resultat_subprocess.stdout else []
+            erreurs = sum(1 for ligne in lignes if ': E' in ligne)
+            avertissements = sum(1 for ligne in lignes if ': W' in ligne)
+            refactorisations = sum(1 for ligne in lignes if ': R' in ligne)
+            conventions = sum(1 for ligne in lignes if ': C' in ligne)
             
-            resume = f" RÉSUMÉ PYLINT: {erreurs} erreur(s), {avertissements} avertissement(s), "
+            resume = f"RÉSUMÉ PYLINT: {erreurs} erreur(s), {avertissements} avertissement(s), "
             resume += f"{conventions} problème(s) de convention, {refactorisations} suggestion(s) de refactorisation."
             parties_sortie.append(resume)
+            status_final = "SUCCESS"  # Même avec des erreurs, l'analyse est un succès
         
-        return "\n".join(parties_sortie)
+        resultat_final = "\n".join(parties_sortie)
+        
+        # LOG SUCCÈS
+        log_experiment(
+            agent_name="Toolsmith_Agent",
+            model_used="python_tool",
+            action=ActionType.ANALYSIS,
+            details={
+                "input_prompt": f"Analyse pylint du fichier {chemin_fichier}",
+                "output_response": f"Analyse terminée: {resultat_subprocess.returncode} issues trouvées",
+                "file_analyzed": chemin_fichier,
+                "tool_used": "executer_pylint",
+                "pylint_exit_code": resultat_subprocess.returncode,
+                "errors_found": erreurs if 'erreurs' in locals() else 0,
+                "warnings_found": avertissements if 'avertissements' in locals() else 0
+            },
+            status=status_final
+        )
+        
+        return resultat_final
         
     except subprocess.TimeoutExpired:
-        return f"Erreur: Timeout de pylint après 30 secondes pour le fichier '{chemin_fichier}'. Le fichier pourrait être trop volumineux ou complexe."
+        resultat = f"Erreur: Timeout de pylint après 30 secondes pour le fichier '{chemin_fichier}'."
+        log_experiment(
+            agent_name="Toolsmith_Agent",
+            model_used="python_tool",
+            action=ActionType.ANALYSIS,
+            details={
+                "input_prompt": f"Analyse pylint du fichier {chemin_fichier}",
+                "output_response": resultat,
+                "file_analyzed": chemin_fichier,
+                "tool_used": "executer_pylint",
+                "timeout": True
+            },
+            status="ERROR"
+        )
+        return resultat
+        
     except FileNotFoundError:
-        return "Erreur: Commande 'pylint' introuvable. Veuillez installer pylint: pip install pylint"
-    except PermissionError:
-        return f"Erreur: Permission refusée lors de l'exécution de pylint sur '{chemin_fichier}'."
+        resultat = "Erreur: Commande 'pylint' introuvable."
+        log_experiment(
+            agent_name="Toolsmith_Agent",
+            model_used="python_tool",
+            action=ActionType.ANALYSIS,
+            details={
+                "input_prompt": f"Analyse pylint du fichier {chemin_fichier}",
+                "output_response": resultat,
+                "file_analyzed": chemin_fichier,
+                "tool_used": "executer_pylint",
+                "pylint_not_found": True
+            },
+            status="ERROR"
+        )
+        return resultat
+        
     except Exception as e:
-        return f"Erreur: Erreur inattendue lors de l'exécution de pylint sur '{chemin_fichier}': {str(e)}"
-
-
+        resultat = f"Erreur: Erreur inattendue lors de l'exécution de pylint: {str(e)}"
+        log_experiment(
+            agent_name="Toolsmith_Agent",
+            model_used="python_tool",
+            action=ActionType.ANALYSIS,
+            details={
+                "input_prompt": f"Analyse pylint du fichier {chemin_fichier}",
+                "output_response": resultat,
+                "file_analyzed": chemin_fichier,
+                "tool_used": "executer_pylint"
+            },
+            status="ERROR"
+        )
+        return resultat
 
 def executer_pytest(chemin_test: str) -> str:
     """
     Exécute pytest sur un fichier de test Python donné et retourne les résultats.
-    
-    Args:
-        chemin_test (str): Chemin vers le fichier de test Python à exécuter.
-        
-    Returns:
-        str: Sortie de pytest ou message d'erreur.
     """
     try:
         chemin_test = os.path.normpath(chemin_test)
 
         print(f"[DEBUG] Exécution de pytest sur : {chemin_test}")
 
-        #Determiner les arguments pour pytest selon input
-        if(os.path.isfile(chemin_test) and chemin_test.endswith('.py')):
-            pytest_args = ['pytest', chemin_test,'-v', '--tb=short']
-        elif(os.path.isdir(chemin_test)):
-            pytest_args = ['pytest', chemin_test,'-v', '--tb=short']
+        if os.path.isfile(chemin_test) and chemin_test.endswith('.py'):
+            pytest_args = ['pytest', chemin_test, '-v', '--tb=short']
+        elif os.path.isdir(chemin_test):
+            pytest_args = ['pytest', chemin_test, '-v', '--tb=short']
         else:
-            #si le chemin n'existe pas ou n'est pas un fichier/repertoire , executer dans le repertoire courant
-
-            pytest_args = ['pytest', chemin_test,'-v', '--tb=short']
-        # Exécuter pytest
-        resultat = subprocess.run(
+            pytest_args = ['pytest', chemin_test, '-v', '--tb=short']
+            
+        resultat_subprocess = subprocess.run(
             pytest_args,
             capture_output=True,
             text=True,
-            timeout=60,  # Timeout de 60 secondes
+            timeout=60,
             shell=False
         )
-        # Construire la sortie complète
+        
         parties_sortie = []
 
-        # Ajouter la sortie de pytest
-        if resultat.stdout:
+        if resultat_subprocess.stdout:
             parties_sortie.append(f"RAPPORT D'EXÉCUTION PYTEST:\n{'='*50}")
-            #extraire uniquement la partie importante de la sortie
-            lignes = resultat.stdout.split('\n')
+            lignes = resultat_subprocess.stdout.split('\n')
             debut_idx = 0
             for i, ligne in enumerate(lignes):
                 if ligne.startswith('============================= test session starts ============================='):
@@ -213,60 +548,89 @@ def executer_pytest(chemin_test: str) -> str:
             if debut_idx < len(lignes):
                 parties_sortie.append('\n'.join(lignes[debut_idx:]))    
 
-
-        # Ajouter les erreurs si présentes
-        if resultat.stderr:
+        if resultat_subprocess.stderr:
             parties_sortie.append(f"\nERREURS PYTEST:\n{'='*50}")
-            parties_sortie.append(resultat.stderr)
+            parties_sortie.append(resultat_subprocess.stderr)
 
-        # Ajouter un résumé
         parties_sortie.append(f"\n{'='*50}")   
         signification_code_sortie = {
             0: "Tous les tests ont réussi.",
             1: "Des tests ont échoué.",
             2: "Un problème est survenu lors de l'exécution des tests.",
-            3: "Une erreur fatale est survenue lors de l'exécution de pytest .",
+            3: "Une erreur fatale est survenue lors de l'exécution de pytest.",
             4: "Pytest a été interrompu par l'utilisateur.",
             5: "Aucun test n'a été collecté."
         }
-        resume = signification_code_sortie.get(resultat.returncode, "Code de sortie inconnu de pytest.")
+        resume = signification_code_sortie.get(resultat_subprocess.returncode, "Code de sortie inconnu de pytest.")
         parties_sortie.append(f"RÉSUMÉ PYTEST: {resume}")
 
-        #ajouter des stats si possible
-        if resultat.stdout:
-            for ligne in reversed(resultat.stdout.split('\n')):
+        if resultat_subprocess.stdout:
+            for ligne in reversed(resultat_subprocess.stdout.split('\n')):
                 if "passed" in ligne.lower() and "failed" in ligne.lower():
                     parties_sortie.append(f"STATISTIQUES PYTEST: {ligne.strip()}")
                     break
-        return "\n".join(parties_sortie)
-    except subprocess.TimeoutExpired:
-        return f"Erreur: Timeout de pytest après 60 secondes pour le chemin '{chemin_test}'. Le fichier pourrait être trop volumineux ou complexe."
-    except FileNotFoundError:
-        return "Erreur: Commande 'pytest' introuvable. Veuillez installer pytest: pip install pytest"
-    except PermissionError:
-        return f"Erreur: Permission refusée lors de l'exécution de pytest sur '{chemin_test}'."
+                    
+        resultat_final = "\n".join(parties_sortie)
+        
+        # LOG
+        log_experiment(
+            agent_name="Toolsmith_Agent",
+            model_used="python_tool",
+            action=ActionType.DEBUG,
+            details={
+                "input_prompt": f"Exécution pytest sur {chemin_test}",
+                "output_response": f"Tests exécutés: code de sortie {resultat_subprocess.returncode}",
+                "test_path": chemin_test,
+                "tool_used": "executer_pytest",
+                "pytest_exit_code": resultat_subprocess.returncode
+            },
+            status="SUCCESS" if resultat_subprocess.returncode in [0, 1] else "ERROR"
+        )
+        
+        return resultat_final
+        
     except Exception as e:
-        return f"Erreur: Erreur inattendue lors de l'exécution de pytest sur '{chemin_test}': {str(e)}"
-
+        resultat = f"Erreur: {str(e)}"
+        log_experiment(
+            agent_name="Toolsmith_Agent",
+            model_used="python_tool",
+            action=ActionType.DEBUG,
+            details={
+                "input_prompt": f"Exécution pytest sur {chemin_test}",
+                "output_response": resultat,
+                "test_path": chemin_test,
+                "tool_used": "executer_pytest"
+            },
+            status="ERROR"
+        )
+        return resultat
 
 def lister_fichiers_python(repertoire: str) -> List[str]:
     """
     Liste tous les fichiers Python (.py) dans un répertoire donné.
-    
-    Args:
-        repertoire (str): Chemin vers le répertoire à explorer.
-        
-    Returns:
-        List[str]: Liste des chemins de fichiers Python.
     """
     try:
         repertoire = os.path.normpath(repertoire)
 
         if not os.path.exists(repertoire):
-            return []
+            resultat = []
+            log_experiment(
+                agent_name="Toolsmith_Agent",
+                model_used="python_tool",
+                action=ActionType.ANALYSIS,
+                details={
+                    "input_prompt": f"Liste fichiers Python dans {repertoire}",
+                    "output_response": "Répertoire inexistant, liste vide retournée",
+                    "directory": repertoire,
+                    "tool_used": "lister_fichiers_python"
+                },
+                status="SUCCESS"
+            )
+            return resultat
+            
         fichiers_python = []
         for racine, repertoires, fichiers in os.walk(repertoire):
-            #ignorer les repertoires indésirables
+            # Ignorer certains répertoires
             repertoires[:] = [d for d in repertoires if d not in [
                 '__pycache__', '.git', 'venv', '.venv',
                 'node_modules', '.idea', '.vscode', 'logs'
@@ -275,84 +639,127 @@ def lister_fichiers_python(repertoire: str) -> List[str]:
                 if fichier.endswith('.py'):
                     chemin_complet = os.path.join(racine, fichier)
                     fichiers_python.append(chemin_complet)
+        
         fichiers_python.sort()
+        
+        log_experiment(
+            agent_name="Toolsmith_Agent",
+            model_used="python_tool",
+            action=ActionType.ANALYSIS,
+            details={
+                "input_prompt": f"Liste fichiers Python dans {repertoire}",
+                "output_response": f"{len(fichiers_python)} fichier(s) trouvé(s)",
+                "directory": repertoire,
+                "tool_used": "lister_fichiers_python",
+                "files_found": len(fichiers_python),
+                "files_list": fichiers_python[:10]  # Limiter à 10 fichiers pour éviter les logs trop longs
+            },
+            status="SUCCESS"
+        )
+        
         return fichiers_python
+        
     except Exception as e:
-        print(f"Erreur: Une erreur inattendue s'est produite lors de la liste des fichiers Python dans le répertoire '{repertoire}': {str(e)}", file=sys.stderr)
+        error_msg = f"Erreur: {str(e)}"
+        print(error_msg, file=sys.stderr)
+        log_experiment(
+            agent_name="Toolsmith_Agent",
+            model_used="python_tool",
+            action=ActionType.ANALYSIS,
+            details={
+                "input_prompt": f"Liste fichiers Python dans {repertoire}",
+                "output_response": error_msg,
+                "directory": repertoire,
+                "tool_used": "lister_fichiers_python",
+                "error": str(e)
+            },
+            status="ERROR"
+        )
         return []
+    
 
 
 def obtenir_info_fichier(chemin_fichier: str) -> Dict[str, Any]:
     """
-    Obtient des informations sur un fichier donné.
-    
-    Args:
-        chemin_fichier (str): Chemin vers le fichier.
-        
-    Returns:
-        Dict[str, Any]: Dictionnaire contenant les informations du fichier.
+    Obtient des informations détaillées sur un fichier.
     """
     try:
         chemin_fichier = os.path.normpath(chemin_fichier)
-
+        
         if not os.path.exists(chemin_fichier):
-            return {"erreur": f"Le fichier '{chemin_fichier}' n'existe pas."}
+            info = {
+                "erreur": f"Le fichier '{chemin_fichier}' n'existe pas.",
+                "existe": False
+            }
+            log_experiment(
+                agent_name="Toolsmith_Agent",
+                model_used="python_tool",
+                action=ActionType.ANALYSIS,
+                details={
+                    "input_prompt": f"Obtenir info fichier {chemin_fichier}",
+                    "output_response": info["erreur"],
+                    "file_analyzed": chemin_fichier,
+                    "tool_used": "obtenir_info_fichier",
+                    "error_type": "file_not_found"
+                },
+                status="ERROR"
+            )
+            return info
         
-        stats = os.stat(chemin_fichier)
-        taille = stats.st_size
-        if taille < 1024:
-            taille_str = f"{taille} octets"
-        elif taille < 1024 * 1024:
-            taille_str = f"{taille / 1024:.2f} Ko"
-        else:
-            taille_str = f"{taille / (1024 * 1024):.2f} Mo"
-        
-        _, extension = os.path.splitext(chemin_fichier)
-        return {
+        info = {
             "chemin": chemin_fichier,
-            "chemins_absolu": os.path.abspath(chemin_fichier),
-            "taille_octets": taille,
-            "taille_humain": taille_str,
-            "extension": extension,
+            "chemin_absolu": os.path.abspath(chemin_fichier),
+            "existe": True,
             "est_fichier": os.path.isfile(chemin_fichier),
             "est_repertoire": os.path.isdir(chemin_fichier),
-            "date_modification": stats.st_mtime,
-            "nom": os.path.basename(chemin_fichier)
+            "taille": os.path.getsize(chemin_fichier) if os.path.isfile(chemin_fichier) else 0,
+            "date_modification": datetime.fromtimestamp(os.path.getmtime(chemin_fichier)).isoformat(),
+            "date_creation": datetime.fromtimestamp(os.path.getctime(chemin_fichier)).isoformat(),
+            "extension": os.path.splitext(chemin_fichier)[1] if os.path.isfile(chemin_fichier) else "",
+            "nom": os.path.basename(chemin_fichier),
+            "repertoire_parent": os.path.dirname(chemin_fichier)
         }
-    except Exception as e:
-        return {"erreur": f"Une erreur inattendue s'est produite lors de l'obtention des informations du fichier '{chemin_fichier}': {str(e)}"}
-
-
-
-def creer_fichier_test(nom_fichier: str, contenu: str = None) -> str:
-    """
-    Crée un fichier de test dans sandbox.
-    
-    Args:
-        nom_fichier (str): Nom du fichier.
-        contenu (str, optional): Contenu. Si None, crée un code d'exemple.
         
-    Returns:
-        str: Message de succès ou d'erreur.
-    """
-    try:
-        if not nom_fichier.startswith("sandbox/"):
-            nom_fichier = f"sandbox/{nom_fichier}"
+        if info["est_fichier"] and chemin_fichier.endswith('.py'):
+            contenu = lire_fichier(chemin_fichier)
+            if "Erreur:" not in contenu:
+                info["lignes"] = len(contenu.split('\n'))
+                info["caracteres"] = len(contenu)
         
-        if contenu is None:
-            contenu = '''"""
-Fichier de test automatique.
-"""
-
-def exemple():
-    """Fonction d'exemple."""
-    return "test"
-
-if __name__ == "__main__":
-    print(exemple())'''
+        log_experiment(
+            agent_name="Toolsmith_Agent",
+            model_used="python_tool",
+            action=ActionType.ANALYSIS,
+            details={
+                "input_prompt": f"Obtenir info fichier {chemin_fichier}",
+                "output_response": f"Informations obtenues pour {chemin_fichier}: {info['nom']} ({info['taille']} octets)",
+                "file_analyzed": chemin_fichier,
+                "tool_used": "obtenir_info_fichier",
+                "file_size": info.get("taille", 0),
+                "is_python_file": chemin_fichier.endswith('.py'),
+                "file_info_summary": f"{info['nom']} - {info['taille']} bytes"
+            },
+            status="SUCCESS"
+        )
         
-        return ecrire_fichier(nom_fichier, contenu)
+        return info
         
     except Exception as e:
-        return f"Erreur création fichier test: {str(e)}"
-        
+        error_msg = f"Erreur inattendue: {str(e)}"
+        info = {
+            "erreur": error_msg
+        }
+        log_experiment(
+            agent_name="Toolsmith_Agent",
+            model_used="python_tool",
+            action=ActionType.ANALYSIS,
+            details={
+                "input_prompt": f"Obtenir info fichier {chemin_fichier}",
+                "output_response": error_msg,
+                "file_analyzed": chemin_fichier,
+                "tool_used": "obtenir_info_fichier",
+                "error_type": "unexpected_error"
+            },
+            status="ERROR"
+        )
+        return info
