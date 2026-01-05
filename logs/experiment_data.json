@@ -1,11 +1,707 @@
 [
-  {
-    "id": "9e82e9b0-9b43-4a78-af43-d5d5ef848a2f",
-    "timestamp": "2025-12-26T01:26:41.177789",
-    "agent": "System",
-    "model": "unknown",
-    "action": "STARTUP",
-    "details": "Target: ./sandbox",
-    "status": "INFO"
-  }
+    {
+        "id": "02275666-d001-4bc2-b810-b2a25e2b4cf3",
+        "timestamp": "2026-01-05T00:45:02.171491",
+        "agent": "System",
+        "model": "system",
+        "action": "CODE_ANALYSIS",
+        "details": {
+            "input_prompt": "System startup",
+            "output_response": "Target directory: ./sandbox"
+        },
+        "status": "INFO"
+    },
+    {
+        "id": "17104f18-9fb7-4f1a-a179-d02cca61882d",
+        "timestamp": "2026-01-05T00:45:02.395642",
+        "agent": "AuditorNode",
+        "model": "system",
+        "action": "CODE_ANALYSIS",
+        "details": {
+            "input_prompt": "Analyzing ./sandbox\\test.py",
+            "output_response": "Analysis started (placeholder)",
+            "file": "./sandbox\\test.py"
+        },
+        "status": "SUCCESS"
+    },
+    {
+        "id": "c8d4b0c5-f80f-429c-bb7f-8e23507cd2e5",
+        "timestamp": "2026-01-05T00:45:02.428762",
+        "agent": "FixerNode",
+        "model": "system",
+        "action": "FIX",
+        "details": {
+            "input_prompt": "Fixing ./sandbox\\test.py",
+            "output_response": "Fix started (placeholder)",
+            "file": "./sandbox\\test.py"
+        },
+        "status": "SUCCESS"
+    },
+    {
+        "id": "c662c638-ebdb-4388-b9f8-58ae4795d2ef",
+        "timestamp": "2026-01-05T00:45:02.462481",
+        "agent": "JudgeNode",
+        "model": "system",
+        "action": "DEBUG",
+        "details": {
+            "input_prompt": "Testing ./sandbox\\test.py",
+            "output_response": "Test passed (placeholder)",
+            "file": "./sandbox\\test.py"
+        },
+        "status": "SUCCESS"
+    },
+    {
+        "id": "0dc1cad1-e9d8-4782-8f04-f18c5a7a1fd5",
+        "timestamp": "2026-01-05T20:36:07.527234",
+        "agent": "System",
+        "model": "system",
+        "action": "CODE_ANALYSIS",
+        "details": {
+            "input_prompt": "System startup",
+            "output_response": "Target directory: ./sandbox"
+        },
+        "status": "INFO"
+    },
+    {
+        "id": "873b3783-77bf-4f03-9d02-262eea921181",
+        "timestamp": "2026-01-05T20:36:08.204430",
+        "agent": "AuditorAgent",
+        "model": "gemini-2.0-flash",
+        "action": "CODE_ANALYSIS",
+        "details": {
+            "input_prompt": "Analyze ./sandbox\\test1.py",
+            "output_response": "{'issues_found': 3, 'quality_score': 65, 'recommendations': ['Add docstrings', 'Fix indentation']}",
+            "file": "./sandbox\\test1.py"
+        },
+        "status": "SUCCESS"
+    },
+    {
+        "id": "71df1c18-ecff-4b8c-b8cc-57d64900b99d",
+        "timestamp": "2026-01-05T20:36:08.254542",
+        "agent": "AuditorAgent",
+        "model": "gemini-2.0-flash",
+        "action": "CODE_ANALYSIS",
+        "details": {
+            "input_prompt": "Analyze ./sandbox\\test2.py",
+            "output_response": "{'issues_found': 3, 'quality_score': 65, 'recommendations': ['Add docstrings', 'Fix indentation']}",
+            "file": "./sandbox\\test2.py"
+        },
+        "status": "SUCCESS"
+    },
+    {
+        "id": "ae267f39-1b8e-401a-9081-da4497b0df15",
+        "timestamp": "2026-01-05T20:36:36.529026",
+        "agent": "System",
+        "model": "system",
+        "action": "CODE_ANALYSIS",
+        "details": {
+            "input_prompt": "System startup",
+            "output_response": "Target directory: ./sandbox"
+        },
+        "status": "INFO"
+    },
+    {
+        "id": "2b08d36c-9a6a-46d0-92f6-c45a5e0efcfd",
+        "timestamp": "2026-01-05T20:36:36.852124",
+        "agent": "AuditorAgent",
+        "model": "gemini-2.0-flash",
+        "action": "CODE_ANALYSIS",
+        "details": {
+            "input_prompt": "Analyze ./sandbox\\test1.py",
+            "output_response": "{'issues_found': 3, 'quality_score': 65, 'recommendations': ['Add docstrings', 'Fix indentation']}",
+            "file": "./sandbox\\test1.py"
+        },
+        "status": "SUCCESS"
+    },
+    {
+        "id": "c13409fe-acc2-4333-8d51-522763dced6b",
+        "timestamp": "2026-01-05T20:36:36.919036",
+        "agent": "AuditorAgent",
+        "model": "gemini-2.0-flash",
+        "action": "CODE_ANALYSIS",
+        "details": {
+            "input_prompt": "Analyze ./sandbox\\test2.py",
+            "output_response": "{'issues_found': 3, 'quality_score': 65, 'recommendations': ['Add docstrings', 'Fix indentation']}",
+            "file": "./sandbox\\test2.py"
+        },
+        "status": "SUCCESS"
+    },
+    {
+        "id": "a65aea8f-0668-4e63-b91b-72fcb32a2a81",
+        "timestamp": "2026-01-05T20:48:09.794502",
+        "agent": "System",
+        "model": "system",
+        "action": "CODE_ANALYSIS",
+        "details": {
+            "input_prompt": "System startup",
+            "output_response": "Target directory: ./sandbox"
+        },
+        "status": "INFO"
+    },
+    {
+        "id": "27e2594e-3aab-4367-934e-5c887f3af21d",
+        "timestamp": "2026-01-05T20:48:10.090384",
+        "agent": "AuditorAgent",
+        "model": "gemini-2.0-flash",
+        "action": "CODE_ANALYSIS",
+        "details": {
+            "input_prompt": "Analyze ./sandbox\\test1.py",
+            "output_response": "{'status': 'success', 'message': 'Placeholder - implement me'}",
+            "file": "./sandbox\\test1.py"
+        },
+        "status": "SUCCESS"
+    },
+    {
+        "id": "01a12b01-bcaa-48c9-81cd-5ae6c2dfb7b3",
+        "timestamp": "2026-01-05T20:48:10.126573",
+        "agent": "AuditorAgent",
+        "model": "gemini-2.0-flash",
+        "action": "CODE_ANALYSIS",
+        "details": {
+            "input_prompt": "Analyze ./sandbox\\test2.py",
+            "output_response": "{'status': 'success', 'message': 'Placeholder - implement me'}",
+            "file": "./sandbox\\test2.py"
+        },
+        "status": "SUCCESS"
+    },
+    {
+        "id": "5ffbe36c-2e7e-4e82-a6ca-992a39f69c00",
+        "timestamp": "2026-01-05T20:56:26.705042",
+        "agent": "System",
+        "model": "system",
+        "action": "CODE_ANALYSIS",
+        "details": {
+            "input_prompt": "System startup",
+            "output_response": "Target directory: ./sandbox"
+        },
+        "status": "INFO"
+    },
+    {
+        "id": "e6f5f933-20d0-440d-bd83-58217384a1c9",
+        "timestamp": "2026-01-05T20:56:26.969895",
+        "agent": "AuditorAgent",
+        "model": "gemini-2.0-flash",
+        "action": "CODE_ANALYSIS",
+        "details": {
+            "input_prompt": "Analyze ./sandbox\\test1.py",
+            "output_response": "{'status': 'success', 'message': 'Placeholder - implement me'}",
+            "file": "./sandbox\\test1.py"
+        },
+        "status": "SUCCESS"
+    },
+    {
+        "id": "0cecbc11-2796-4a08-aec3-53a31cb7b082",
+        "timestamp": "2026-01-05T20:56:27.005310",
+        "agent": "FixerAgent",
+        "model": "gemini-2.0-flash",
+        "action": "FIX",
+        "details": {
+            "input_prompt": "Fix ./sandbox\\test1.py",
+            "output_response": "{'status': 'success', 'message': 'Placeholder - implement me'}",
+            "file": "./sandbox\\test1.py"
+        },
+        "status": "SUCCESS"
+    },
+    {
+        "id": "f7dc6a84-e13a-4ab1-b0f3-2689215f0cae",
+        "timestamp": "2026-01-05T20:56:27.039769",
+        "agent": "JudgeAgent",
+        "model": "gemini-2.0-flash",
+        "action": "DEBUG",
+        "details": {
+            "input_prompt": "Test ./sandbox\\test1.py",
+            "output_response": "{'status': 'success', 'message': 'Placeholder - implement me'}",
+            "file": "./sandbox\\test1.py"
+        },
+        "status": "SUCCESS"
+    },
+    {
+        "id": "54c75c2b-d021-4154-a2cc-e6370749dcf0",
+        "timestamp": "2026-01-05T20:56:27.100000",
+        "agent": "AuditorAgent",
+        "model": "gemini-2.0-flash",
+        "action": "CODE_ANALYSIS",
+        "details": {
+            "input_prompt": "Analyze ./sandbox\\test2.py",
+            "output_response": "{'status': 'success', 'message': 'Placeholder - implement me'}",
+            "file": "./sandbox\\test2.py"
+        },
+        "status": "SUCCESS"
+    },
+    {
+        "id": "7d45b5da-145d-4a85-bd91-ad286f298734",
+        "timestamp": "2026-01-05T20:56:27.135260",
+        "agent": "FixerAgent",
+        "model": "gemini-2.0-flash",
+        "action": "FIX",
+        "details": {
+            "input_prompt": "Fix ./sandbox\\test2.py",
+            "output_response": "{'status': 'success', 'message': 'Placeholder - implement me'}",
+            "file": "./sandbox\\test2.py"
+        },
+        "status": "SUCCESS"
+    },
+    {
+        "id": "6ca1c56f-833c-491b-8134-452bd1759b64",
+        "timestamp": "2026-01-05T20:56:27.172593",
+        "agent": "JudgeAgent",
+        "model": "gemini-2.0-flash",
+        "action": "DEBUG",
+        "details": {
+            "input_prompt": "Test ./sandbox\\test2.py",
+            "output_response": "{'status': 'success', 'message': 'Placeholder - implement me'}",
+            "file": "./sandbox\\test2.py"
+        },
+        "status": "SUCCESS"
+    },
+    {
+        "id": "0f6db7aa-41ef-4fc3-a8ff-6a90213a17d4",
+        "timestamp": "2026-01-05T21:02:59.657817",
+        "agent": "System",
+        "model": "system",
+        "action": "CODE_ANALYSIS",
+        "details": {
+            "input_prompt": "System startup",
+            "output_response": "Target directory: ./sandbox"
+        },
+        "status": "INFO"
+    },
+    {
+        "id": "6d34f062-dd90-4c3a-a02c-641630f7f8bd",
+        "timestamp": "2026-01-05T21:02:59.884276",
+        "agent": "AuditorAgent",
+        "model": "gemini-2.0-flash",
+        "action": "CODE_ANALYSIS",
+        "details": {
+            "input_prompt": "Analyze ./sandbox\\test1.py",
+            "output_response": "{'status': 'success', 'message': 'Placeholder - implement me'}",
+            "file": "./sandbox\\test1.py"
+        },
+        "status": "SUCCESS"
+    },
+    {
+        "id": "61556e2f-f49f-4104-a354-3235a4b73fa0",
+        "timestamp": "2026-01-05T21:02:59.923333",
+        "agent": "FixerAgent",
+        "model": "gemini-2.0-flash",
+        "action": "FIX",
+        "details": {
+            "input_prompt": "Fix ./sandbox\\test1.py",
+            "output_response": "{'status': 'success', 'message': 'Placeholder - implement me'}",
+            "file": "./sandbox\\test1.py"
+        },
+        "status": "SUCCESS"
+    },
+    {
+        "id": "1eb3a0e8-3467-4de5-b033-43fd5a8a4cf6",
+        "timestamp": "2026-01-05T21:02:59.954684",
+        "agent": "JudgeAgent",
+        "model": "gemini-2.0-flash",
+        "action": "DEBUG",
+        "details": {
+            "input_prompt": "Test ./sandbox\\test1.py",
+            "output_response": "{'status': 'success', 'message': 'Placeholder - implement me'}",
+            "file": "./sandbox\\test1.py"
+        },
+        "status": "SUCCESS"
+    },
+    {
+        "id": "c2b4476f-a96e-4e31-8d6b-786991ccfdb4",
+        "timestamp": "2026-01-05T21:03:00.007358",
+        "agent": "AuditorAgent",
+        "model": "gemini-2.0-flash",
+        "action": "CODE_ANALYSIS",
+        "details": {
+            "input_prompt": "Analyze ./sandbox\\test2.py",
+            "output_response": "{'status': 'success', 'message': 'Placeholder - implement me'}",
+            "file": "./sandbox\\test2.py"
+        },
+        "status": "SUCCESS"
+    },
+    {
+        "id": "eb4e73b3-8c67-48a4-af8e-dcf687b907ac",
+        "timestamp": "2026-01-05T21:03:00.039256",
+        "agent": "FixerAgent",
+        "model": "gemini-2.0-flash",
+        "action": "FIX",
+        "details": {
+            "input_prompt": "Fix ./sandbox\\test2.py",
+            "output_response": "{'status': 'success', 'message': 'Placeholder - implement me'}",
+            "file": "./sandbox\\test2.py"
+        },
+        "status": "SUCCESS"
+    },
+    {
+        "id": "f9b71e07-47a4-4552-800f-0d58fc5d329c",
+        "timestamp": "2026-01-05T21:03:00.071412",
+        "agent": "JudgeAgent",
+        "model": "gemini-2.0-flash",
+        "action": "DEBUG",
+        "details": {
+            "input_prompt": "Test ./sandbox\\test2.py",
+            "output_response": "{'status': 'success', 'message': 'Placeholder - implement me'}",
+            "file": "./sandbox\\test2.py"
+        },
+        "status": "SUCCESS"
+    },
+    {
+        "id": "43f40366-ffc7-49ec-b2c9-ab10d2a9e95b",
+        "timestamp": "2026-01-05T21:11:47.842250",
+        "agent": "System",
+        "model": "system",
+        "action": "CODE_ANALYSIS",
+        "details": {
+            "input_prompt": "System startup",
+            "output_response": "Target directory: ./sandbox"
+        },
+        "status": "INFO"
+    },
+    {
+        "id": "311a57dd-4c9c-4603-83ed-95b76af061b4",
+        "timestamp": "2026-01-05T21:11:48.111910",
+        "agent": "AuditorAgent",
+        "model": "gemini-2.0-flash",
+        "action": "CODE_ANALYSIS",
+        "details": {
+            "input_prompt": "Analyze ./sandbox\\test1.py",
+            "output_response": "{'status': 'success', 'message': 'Placeholder - implement me'}",
+            "file": "./sandbox\\test1.py"
+        },
+        "status": "SUCCESS"
+    },
+    {
+        "id": "307b0c80-d760-4738-9c26-680431e8a5d8",
+        "timestamp": "2026-01-05T21:11:48.149882",
+        "agent": "FixerAgent",
+        "model": "gemini-2.0-flash",
+        "action": "FIX",
+        "details": {
+            "input_prompt": "Fix ./sandbox\\test1.py",
+            "output_response": "{'status': 'success', 'message': 'Placeholder - implement me'}",
+            "file": "./sandbox\\test1.py"
+        },
+        "status": "SUCCESS"
+    },
+    {
+        "id": "a65b983d-2743-4d5e-b07a-faacdeea88eb",
+        "timestamp": "2026-01-05T21:11:48.178705",
+        "agent": "JudgeAgent",
+        "model": "gemini-2.0-flash",
+        "action": "DEBUG",
+        "details": {
+            "input_prompt": "Test ./sandbox\\test1.py",
+            "output_response": "{'status': 'success', 'message': 'Placeholder - implement me'}",
+            "file": "./sandbox\\test1.py"
+        },
+        "status": "SUCCESS"
+    },
+    {
+        "id": "3aa6d3d7-961f-46cf-a956-06a4e253760d",
+        "timestamp": "2026-01-05T21:11:48.234284",
+        "agent": "AuditorAgent",
+        "model": "gemini-2.0-flash",
+        "action": "CODE_ANALYSIS",
+        "details": {
+            "input_prompt": "Analyze ./sandbox\\test2.py",
+            "output_response": "{'status': 'success', 'message': 'Placeholder - implement me'}",
+            "file": "./sandbox\\test2.py"
+        },
+        "status": "SUCCESS"
+    },
+    {
+        "id": "b3aa306a-e23e-4592-93e2-98c517aaf59e",
+        "timestamp": "2026-01-05T21:11:48.263306",
+        "agent": "FixerAgent",
+        "model": "gemini-2.0-flash",
+        "action": "FIX",
+        "details": {
+            "input_prompt": "Fix ./sandbox\\test2.py",
+            "output_response": "{'status': 'success', 'message': 'Placeholder - implement me'}",
+            "file": "./sandbox\\test2.py"
+        },
+        "status": "SUCCESS"
+    },
+    {
+        "id": "1100e22a-2397-428f-9d2b-231dfc193a7c",
+        "timestamp": "2026-01-05T21:11:48.282018",
+        "agent": "JudgeAgent",
+        "model": "gemini-2.0-flash",
+        "action": "DEBUG",
+        "details": {
+            "input_prompt": "Test ./sandbox\\test2.py",
+            "output_response": "{'status': 'success', 'message': 'Placeholder - implement me'}",
+            "file": "./sandbox\\test2.py"
+        },
+        "status": "SUCCESS"
+    },
+    {
+        "id": "50deb0b6-3344-4b4e-9150-98ca6a4d9ab1",
+        "timestamp": "2026-01-05T21:25:49.286478",
+        "agent": "System",
+        "model": "system",
+        "action": "CODE_ANALYSIS",
+        "details": {
+            "input_prompt": "System startup",
+            "output_response": "Target directory: ./sandbox"
+        },
+        "status": "INFO"
+    },
+    {
+        "id": "c3734727-6924-4445-bf95-c1ed8ee37a3c",
+        "timestamp": "2026-01-05T21:25:49.518011",
+        "agent": "AuditorAgent",
+        "model": "gemini-2.0-flash",
+        "action": "CODE_ANALYSIS",
+        "details": {
+            "input_prompt": "Analyze ./sandbox\\test1.py",
+            "output_response": "{'status': 'success', 'message': 'Placeholder - implement me'}",
+            "file": "./sandbox\\test1.py"
+        },
+        "status": "SUCCESS"
+    },
+    {
+        "id": "4d59074d-f084-4543-8f94-b8ac596d3f7f",
+        "timestamp": "2026-01-05T21:25:49.551195",
+        "agent": "FixerAgent",
+        "model": "gemini-2.0-flash",
+        "action": "FIX",
+        "details": {
+            "input_prompt": "Fix ./sandbox\\test1.py",
+            "output_response": "{'status': 'success', 'message': 'Placeholder - implement me'}",
+            "file": "./sandbox\\test1.py"
+        },
+        "status": "SUCCESS"
+    },
+    {
+        "id": "852a03e0-19bb-47e0-bca3-bd8e49d39411",
+        "timestamp": "2026-01-05T21:25:49.583690",
+        "agent": "JudgeAgent",
+        "model": "gemini-2.0-flash",
+        "action": "DEBUG",
+        "details": {
+            "input_prompt": "Test ./sandbox\\test1.py",
+            "output_response": "{'status': 'success', 'message': 'Placeholder - implement me'}",
+            "file": "./sandbox\\test1.py"
+        },
+        "status": "SUCCESS"
+    },
+    {
+        "id": "10972dfe-61ff-4cd7-98c2-6c8c3dfed2dd",
+        "timestamp": "2026-01-05T21:25:49.642915",
+        "agent": "AuditorAgent",
+        "model": "gemini-2.0-flash",
+        "action": "CODE_ANALYSIS",
+        "details": {
+            "input_prompt": "Analyze ./sandbox\\test2.py",
+            "output_response": "{'status': 'success', 'message': 'Placeholder - implement me'}",
+            "file": "./sandbox\\test2.py"
+        },
+        "status": "SUCCESS"
+    },
+    {
+        "id": "d4be6fcc-4987-4bfc-8e4e-8a8c52481b83",
+        "timestamp": "2026-01-05T21:25:49.674772",
+        "agent": "FixerAgent",
+        "model": "gemini-2.0-flash",
+        "action": "FIX",
+        "details": {
+            "input_prompt": "Fix ./sandbox\\test2.py",
+            "output_response": "{'status': 'success', 'message': 'Placeholder - implement me'}",
+            "file": "./sandbox\\test2.py"
+        },
+        "status": "SUCCESS"
+    },
+    {
+        "id": "97e3fc11-7f0f-4779-95c6-130769c43d41",
+        "timestamp": "2026-01-05T21:25:49.701155",
+        "agent": "JudgeAgent",
+        "model": "gemini-2.0-flash",
+        "action": "DEBUG",
+        "details": {
+            "input_prompt": "Test ./sandbox\\test2.py",
+            "output_response": "{'status': 'success', 'message': 'Placeholder - implement me'}",
+            "file": "./sandbox\\test2.py"
+        },
+        "status": "SUCCESS"
+    },
+    {
+        "id": "68967d7a-4f15-4e2b-a95a-0e65fcef6b6a",
+        "timestamp": "2026-01-05T21:27:06.185893",
+        "agent": "System",
+        "model": "system",
+        "action": "CODE_ANALYSIS",
+        "details": {
+            "input_prompt": "System startup",
+            "output_response": "Target directory: ./sandbox"
+        },
+        "status": "INFO"
+    },
+    {
+        "id": "8487076c-321f-42cd-864e-ac48ec49efb4",
+        "timestamp": "2026-01-05T21:27:06.425627",
+        "agent": "AuditorAgent",
+        "model": "gemini-2.0-flash",
+        "action": "CODE_ANALYSIS",
+        "details": {
+            "input_prompt": "Analyze ./sandbox\\test1.py",
+            "output_response": "{'status': 'success', 'message': 'Placeholder - implement me'}",
+            "file": "./sandbox\\test1.py"
+        },
+        "status": "SUCCESS"
+    },
+    {
+        "id": "b180b529-c999-4c95-a322-0ddbfc10a47d",
+        "timestamp": "2026-01-05T21:27:06.458342",
+        "agent": "FixerAgent",
+        "model": "gemini-2.0-flash",
+        "action": "FIX",
+        "details": {
+            "input_prompt": "Fix ./sandbox\\test1.py",
+            "output_response": "{'status': 'success', 'message': 'Placeholder - implement me'}",
+            "file": "./sandbox\\test1.py"
+        },
+        "status": "SUCCESS"
+    },
+    {
+        "id": "16211829-4d66-40ce-af23-084a05993bf1",
+        "timestamp": "2026-01-05T21:27:06.480145",
+        "agent": "JudgeAgent",
+        "model": "gemini-2.0-flash",
+        "action": "DEBUG",
+        "details": {
+            "input_prompt": "Test ./sandbox\\test1.py",
+            "output_response": "{'status': 'success', 'message': 'Placeholder - implement me'}",
+            "file": "./sandbox\\test1.py"
+        },
+        "status": "SUCCESS"
+    },
+    {
+        "id": "346d6819-27ab-46b4-b894-c3e1f7bed32d",
+        "timestamp": "2026-01-05T21:27:06.549824",
+        "agent": "AuditorAgent",
+        "model": "gemini-2.0-flash",
+        "action": "CODE_ANALYSIS",
+        "details": {
+            "input_prompt": "Analyze ./sandbox\\test2.py",
+            "output_response": "{'status': 'success', 'message': 'Placeholder - implement me'}",
+            "file": "./sandbox\\test2.py"
+        },
+        "status": "SUCCESS"
+    },
+    {
+        "id": "a3859ef0-0e2e-45be-8364-20ad533c9074",
+        "timestamp": "2026-01-05T21:27:06.582553",
+        "agent": "FixerAgent",
+        "model": "gemini-2.0-flash",
+        "action": "FIX",
+        "details": {
+            "input_prompt": "Fix ./sandbox\\test2.py",
+            "output_response": "{'status': 'success', 'message': 'Placeholder - implement me'}",
+            "file": "./sandbox\\test2.py"
+        },
+        "status": "SUCCESS"
+    },
+    {
+        "id": "fc839d17-6630-403e-8796-d95e3617bd96",
+        "timestamp": "2026-01-05T21:27:06.613388",
+        "agent": "JudgeAgent",
+        "model": "gemini-2.0-flash",
+        "action": "DEBUG",
+        "details": {
+            "input_prompt": "Test ./sandbox\\test2.py",
+            "output_response": "{'status': 'success', 'message': 'Placeholder - implement me'}",
+            "file": "./sandbox\\test2.py"
+        },
+        "status": "SUCCESS"
+    },
+    {
+        "id": "3bf37230-01b0-4d3c-b4a9-bfc072c106b8",
+        "timestamp": "2026-01-05T22:38:36.516966",
+        "agent": "System",
+        "model": "system",
+        "action": "CODE_ANALYSIS",
+        "details": {
+            "input_prompt": "System startup",
+            "output_response": "Target directory: ./sandbox"
+        },
+        "status": "INFO"
+    },
+    {
+        "id": "4dfe4304-8ba6-499d-81b2-4d84d3f24578",
+        "timestamp": "2026-01-05T22:38:37.235359",
+        "agent": "AuditorAgent",
+        "model": "gemini-2.0-flash",
+        "action": "CODE_ANALYSIS",
+        "details": {
+            "input_prompt": "Analyze ./sandbox\\test1.py",
+            "output_response": "{'status': 'success', 'message': 'Placeholder - implement me'}",
+            "file": "./sandbox\\test1.py"
+        },
+        "status": "SUCCESS"
+    },
+    {
+        "id": "06f0d6d7-a472-45a1-a2b0-04be7797146c",
+        "timestamp": "2026-01-05T22:38:37.261387",
+        "agent": "FixerAgent",
+        "model": "gemini-2.0-flash",
+        "action": "FIX",
+        "details": {
+            "input_prompt": "Fix ./sandbox\\test1.py",
+            "output_response": "{'status': 'success', 'message': 'Placeholder - implement me'}",
+            "file": "./sandbox\\test1.py"
+        },
+        "status": "SUCCESS"
+    },
+    {
+        "id": "469afcae-dc78-4d41-91ae-1be6474eaa65",
+        "timestamp": "2026-01-05T22:38:37.294420",
+        "agent": "JudgeAgent",
+        "model": "gemini-2.0-flash",
+        "action": "DEBUG",
+        "details": {
+            "input_prompt": "Test ./sandbox\\test1.py",
+            "output_response": "{'status': 'success', 'message': 'Placeholder - implement me'}",
+            "file": "./sandbox\\test1.py"
+        },
+        "status": "SUCCESS"
+    },
+    {
+        "id": "729cba27-58c1-459b-82da-9797ddc479b8",
+        "timestamp": "2026-01-05T22:38:37.351910",
+        "agent": "AuditorAgent",
+        "model": "gemini-2.0-flash",
+        "action": "CODE_ANALYSIS",
+        "details": {
+            "input_prompt": "Analyze ./sandbox\\test2.py",
+            "output_response": "{'status': 'success', 'message': 'Placeholder - implement me'}",
+            "file": "./sandbox\\test2.py"
+        },
+        "status": "SUCCESS"
+    },
+    {
+        "id": "867a711a-ba9d-475f-b09a-94f3653fc740",
+        "timestamp": "2026-01-05T22:38:37.374508",
+        "agent": "FixerAgent",
+        "model": "gemini-2.0-flash",
+        "action": "FIX",
+        "details": {
+            "input_prompt": "Fix ./sandbox\\test2.py",
+            "output_response": "{'status': 'success', 'message': 'Placeholder - implement me'}",
+            "file": "./sandbox\\test2.py"
+        },
+        "status": "SUCCESS"
+    },
+    {
+        "id": "a64b7b29-3ccd-445d-856e-727469c86792",
+        "timestamp": "2026-01-05T22:38:37.408466",
+        "agent": "JudgeAgent",
+        "model": "gemini-2.0-flash",
+        "action": "DEBUG",
+        "details": {
+            "input_prompt": "Test ./sandbox\\test2.py",
+            "output_response": "{'status': 'success', 'message': 'Placeholder - implement me'}",
+            "file": "./sandbox\\test2.py"
+        },
+        "status": "SUCCESS"
+    }
 ]
