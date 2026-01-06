@@ -3,8 +3,10 @@ import subprocess
 import json
 from typing import Dict, List, Any, Optional
 from pathlib import Path
-from src.utils.logger import log_experiment, ActionType  # AJOUT IMPORT
+from src.utils.logger import log_experiment, ActionType  
 
+
+TOOLSMITH_MODEL = "gemini-2.0-flash"
 class GardeSecurite:
     """Empêche les agents d'écrire en dehors du sandbox."""
     
@@ -78,15 +80,11 @@ class OutilsCode:
                     # LOG SUCCÈS
                     log_experiment(
                         agent_name="Toolsmith_Agent",
-                        model_used="python_tool",
+                        model_used=TOOLSMITH_MODEL,
                         action=ActionType.ANALYSIS,
                         details={
                             "input_prompt": f"Lecture du fichier {chemin_fichier}",
-                            "output_response": f"Fichier lu avec succès: {len(contenu)} caractères",
-                            "file_analyzed": chemin_fichier,
-                            "tool_used": "lire_fichier",
-                            "content_length": len(contenu),
-                            "encoding_used": encodage
+                            "output_response": f"Fichier lu avec succès: {len(contenu)} caractères"
                         },
                         status="SUCCESS"
                     )
@@ -101,14 +99,12 @@ class OutilsCode:
             # LOG ERREUR
             log_experiment(
                 agent_name="Toolsmith_Agent",
-                model_used="python_tool",
+                model_used=TOOLSMITH_MODEL,
                 action=ActionType.ANALYSIS,
                 details={
                     "input_prompt": f"Lecture du fichier {chemin_fichier}",
-                    "output_response": f"Erreur: {str(e)}",
-                    "file_analyzed": chemin_fichier,
-                    "tool_used": "lire_fichier",
-                    "error_type": type(e).__name__
+                    "output_response": f"Erreur: {str(e)}"
+                    
                 },
                 status="FAILURE"
             )
@@ -158,17 +154,12 @@ class OutilsCode:
             
             # LOG RÉSULTAT
             log_experiment(
-                agent_name="Toolsmith_Agent",
-                model_used="python_tool",
+                agent_name="FixerAgent",
+                model_used=TOOLSMITH_MODEL,
                 action=ActionType.FIX,
                 details={
                     "input_prompt": f"Écriture dans le fichier {chemin_fichier}",
-                    "output_response": f"Écriture {'réussie' if succes else 'échouée'}: {len(contenu)} caractères",
-                    "file_modified": chemin_fichier,
-                    "tool_used": "ecrire_fichier",
-                    "content_length": len(contenu),
-                    "backup_created": chemin_sauvegarde is not None,
-                    "verification_passed": succes
+                    "output_response": f"Écriture {'réussie' if succes else 'échouée'}: {len(contenu)} caractères"
                 },
                 status="SUCCESS" if succes else "FAILURE"
             )
@@ -188,15 +179,12 @@ class OutilsCode:
         except Exception as e:
             # LOG ERREUR
             log_experiment(
-                agent_name="Toolsmith_Agent",
-                model_used="python_tool",
+                agent_name="FixerAgent",
+                model_used=TOOLSMITH_MODEL,
                 action=ActionType.FIX,
                 details={
                     "input_prompt": f"Écriture dans le fichier {chemin_fichier}",
-                    "output_response": f"Erreur: {str(e)}",
-                    "file_modified": chemin_fichier,
-                    "tool_used": "ecrire_fichier",
-                    "error_type": type(e).__name__
+                    "output_response": f"Erreur: {str(e)}"
                 },
                 status="FAILURE"
             )
@@ -228,14 +216,12 @@ class OutilsCode:
             
             # LOG DÉBUT
             log_experiment(
-                agent_name="Toolsmith_Agent",
-                model_used="python_tool",
+                agent_name="AuditorAgent",
+                model_used=TOOLSMITH_MODEL,
                 action=ActionType.ANALYSIS,
                 details={
                     "input_prompt": f"Analyse Pylint du fichier {chemin_fichier}",
-                    "output_response": "Début de l'analyse Pylint",
-                    "file_analyzed": chemin_fichier,
-                    "tool_used": "analyser_pylint"
+                    "output_response": "Début de l'analyse Pylint"
                 },
                 status="STARTED"
             )
@@ -285,17 +271,12 @@ class OutilsCode:
                     
                     # LOG SUCCÈS
                     log_experiment(
-                        agent_name="Toolsmith_Agent",
-                        model_used="python_tool",
+                        agent_name="AuditorAgent",
+                        model_used=TOOLSMITH_MODEL,
                         action=ActionType.ANALYSIS,
                         details={
                             "input_prompt": f"Analyse Pylint du fichier {chemin_fichier}",
-                            "output_response": f"Analyse terminée. Score: {score:.2f}/10, Problèmes: {len(problemes)}",
-                            "file_analyzed": chemin_fichier,
-                            "tool_used": "analyser_pylint",
-                            "pylint_score": score,
-                            "problems_found": len(problemes),
-                            "exit_code": resultat.returncode
+                            "output_response": f"Analyse terminée. Score: {score:.2f}/10, Problèmes: {len(problemes)}"
                         },
                         status="SUCCESS"
                     )
@@ -311,16 +292,12 @@ class OutilsCode:
                     
                     # LOG ERREUR JSON
                     log_experiment(
-                        agent_name="Toolsmith_Agent",
-                        model_used="python_tool",
+                        agent_name="AuditorAgent",
+                        model_used=TOOLSMITH_MODEL,
                         action=ActionType.ANALYSIS,
                         details={
                             "input_prompt": f"Analyse Pylint du fichier {chemin_fichier}",
-                            "output_response": "Erreur: Impossible de parser JSON Pylint",
-                            "file_analyzed": chemin_fichier,
-                            "tool_used": "analyser_pylint",
-                            "error_type": "JSONDecodeError",
-                            "raw_output_preview": resultat.stdout[:200] if resultat.stdout else ""
+                            "output_response": "Erreur: Impossible de parser JSON Pylint"
                         },
                         status="FAILURE"
                     )
@@ -337,16 +314,12 @@ class OutilsCode:
                 
                 # LOG ERREUR CODE
                 log_experiment(
-                    agent_name="Toolsmith_Agent",
-                    model_used="python_tool",
+                    agent_name="AuditorAgent",
+                    model_used=TOOLSMITH_MODEL,
                     action=ActionType.ANALYSIS,
                     details={
                         "input_prompt": f"Analyse Pylint du fichier {chemin_fichier}",
-                        "output_response": f"Erreur Pylint: code {resultat.returncode}",
-                        "file_analyzed": chemin_fichier,
-                        "tool_used": "analyser_pylint",
-                        "exit_code": resultat.returncode,
-                        "stderr_preview": resultat.stderr[:200] if resultat.stderr else ""
+                        "output_response": f"Erreur Pylint: code {resultat.returncode}"
                     },
                     status="FAILURE"
                 )
@@ -362,15 +335,12 @@ class OutilsCode:
             
             # LOG TIMEOUT
             log_experiment(
-                agent_name="Toolsmith_Agent",
-                model_used="python_tool",
+                agent_name="AuditorAgent",
+                model_used=TOOLSMITH_MODEL,
                 action=ActionType.ANALYSIS,
                 details={
                     "input_prompt": f"Analyse Pylint du fichier {chemin_fichier}",
-                    "output_response": "Timeout: analyse trop longue (>30s)",
-                    "file_analyzed": chemin_fichier,
-                    "tool_used": "analyser_pylint",
-                    "error_type": "TimeoutExpired"
+                    "output_response": "Timeout: analyse trop longue (>30s)"
                 },
                 status="FAILURE"
             )
@@ -385,15 +355,12 @@ class OutilsCode:
             
             # LOG FICHIER NON TROUVÉ
             log_experiment(
-                agent_name="Toolsmith_Agent",
-                model_used="python_tool",
+                agent_name="AuditorAgent",
+                model_used=TOOLSMITH_MODEL,
                 action=ActionType.ANALYSIS,
                 details={
                     "input_prompt": f"Analyse Pylint du fichier {chemin_fichier}",
-                    "output_response": "Pylint non trouvé dans PATH",
-                    "file_analyzed": chemin_fichier,
-                    "tool_used": "analyser_pylint",
-                    "error_type": "FileNotFoundError"
+                    "output_response": "Pylint non trouvé dans PATH"
                 },
                 status="FAILURE"
             )
@@ -409,15 +376,12 @@ class OutilsCode:
             
             # LOG EXCEPTION GÉNÉRIQUE
             log_experiment(
-                agent_name="Toolsmith_Agent",
-                model_used="python_tool",
+                agent_name="AuditorAgent",
+                model_used=TOOLSMITH_MODEL,
                 action=ActionType.ANALYSIS,
                 details={
                     "input_prompt": f"Analyse Pylint du fichier {chemin_fichier}",
-                    "output_response": f"Erreur inattendue: {str(e)}",
-                    "file_analyzed": chemin_fichier,
-                    "tool_used": "analyser_pylint",
-                    "error_type": type(e).__name__
+                    "output_response": f"Erreur inattendue: {str(e)}"
                 },
                 status="FAILURE"
             )
@@ -440,14 +404,12 @@ class OutilsCode:
             
             # LOG DÉBUT
             log_experiment(
-                agent_name="Toolsmith_Agent",
-                model_used="python_tool",
+                agent_name="JudgeAgent",
+                model_used="gemini-1.5-flash",
                 action=ActionType.DEBUG,
                 details={
                     "input_prompt": f"Exécution Pytest sur {chemin_test if chemin_test else 'sandbox'}",
-                    "output_response": "Début des tests Pytest",
-                    "test_path": chemin_test if chemin_test else "sandbox",
-                    "tool_used": "executer_pytest"
+                    "output_response": "Début des tests Pytest"
                 },
                 status="STARTED"
             )
@@ -506,19 +468,12 @@ class OutilsCode:
             
             # LOG RÉSULTAT
             log_experiment(
-                agent_name="Toolsmith_Agent",
-                model_used="python_tool",
+                agent_name="JudgeAgent",
+                model_used="gemini-1.5-flash",
                 action=ActionType.DEBUG,
                 details={
                     "input_prompt": f"Exécution Pytest sur {chemin_test if chemin_test else 'sandbox'}",
-                    "output_response": f"Tests terminés: {tests_reussis}/{total_tests} réussis, code: {resultat.returncode}",
-                    "test_path": chemin_test if chemin_test else "sandbox",
-                    "tool_used": "executer_pytest",
-                    "tests_passed": tests_reussis,
-                    "tests_failed": tests_echoues,
-                    "total_tests": total_tests,
-                    "exit_code": resultat.returncode,
-                    "success": succes_global
+                    "output_response": f"Tests terminés: {tests_reussis}/{total_tests} réussis, code: {resultat.returncode}"
                 },
                 status="SUCCESS" if succes_global else "FAILURE"
             )
@@ -534,15 +489,12 @@ class OutilsCode:
             
             # LOG TIMEOUT
             log_experiment(
-                agent_name="Toolsmith_Agent",
-                model_used="python_tool",
+                agent_name="JudgeAgent",
+                model_used=TOOLSMITH_MODEL,
                 action=ActionType.DEBUG,
                 details={
                     "input_prompt": f"Exécution Pytest sur {chemin_test if chemin_test else 'sandbox'}",
-                    "output_response": "Timeout: tests trop longs (>60s)",
-                    "test_path": chemin_test if chemin_test else "sandbox",
-                    "tool_used": "executer_pytest",
-                    "error_type": "TimeoutExpired"
+                    "output_response": "Timeout: tests trop longs (>60s)"
                 },
                 status="FAILURE"
             )
@@ -558,15 +510,12 @@ class OutilsCode:
             
             # LOG EXCEPTION
             log_experiment(
-                agent_name="Toolsmith_Agent",
-                model_used="python_tool",
+                agent_name="JudgeAgent",
+                model_used=TOOLSMITH_MODEL,
                 action=ActionType.DEBUG,
                 details={
                     "input_prompt": f"Exécution Pytest sur {chemin_test if chemin_test else 'sandbox'}",
-                    "output_response": f"Erreur: {str(e)}",
-                    "test_path": chemin_test if chemin_test else "sandbox",
-                    "tool_used": "executer_pytest",
-                    "error_type": type(e).__name__
+                    "output_response": f"Erreur: {str(e)}"
                 },
                 status="FAILURE"
             )
@@ -590,15 +539,12 @@ class OutilsCode:
             if not os.path.exists(chemin_repertoire):
                 # LOG DOSSIER INEXISTANT
                 log_experiment(
-                    agent_name="Toolsmith_Agent",
-                    model_used="python_tool",
+                    agent_name="AuditorAgent",
+                    model_used=TOOLSMITH_MODEL,
                     action=ActionType.ANALYSIS,
                     details={
                         "input_prompt": f"Liste fichiers Python dans {repertoire if repertoire else 'sandbox'}",
-                        "output_response": "Dossier inexistant",
-                        "directory": repertoire if repertoire else "sandbox",
-                        "tool_used": "lister_fichiers_python",
-                        "files_found": 0
+                        "output_response": "Dossier inexistant"
                     },
                     status="SUCCESS"
                 )
@@ -624,16 +570,12 @@ class OutilsCode:
             
             # LOG SUCCÈS
             log_experiment(
-                agent_name="Toolsmith_Agent",
-                model_used="python_tool",
+                agent_name="AuditorAgent",
+                model_used=TOOLSMITH_MODEL,
                 action=ActionType.ANALYSIS,
                 details={
                     "input_prompt": f"Liste fichiers Python dans {repertoire if repertoire else 'sandbox'}",
-                    "output_response": f"{len(fichiers_python)} fichier(s) Python trouvé(s)",
-                    "directory": repertoire if repertoire else "sandbox",
-                    "tool_used": "lister_fichiers_python",
-                    "files_found": len(fichiers_python),
-                    "files_sample": fichiers_python[:5]  # Limiter à 5 fichiers pour éviter les logs trop longs
+                    "output_response": f"{len(fichiers_python)} fichier(s) Python trouvé(s)"
                 },
                 status="SUCCESS"
             )
@@ -643,15 +585,12 @@ class OutilsCode:
         except Exception as e:
             # LOG ERREUR
             log_experiment(
-                agent_name="Toolsmith_Agent",
-                model_used="python_tool",
+                agent_name="AuditorAgent",
+                model_used=TOOLSMITH_MODEL,
                 action=ActionType.ANALYSIS,
                 details={
                     "input_prompt": f"Liste fichiers Python dans {repertoire if repertoire else 'sandbox'}",
-                    "output_response": f"Erreur: {str(e)}",
-                    "directory": repertoire if repertoire else "sandbox",
-                    "tool_used": "lister_fichiers_python",
-                    "error_type": type(e).__name__
+                    "output_response": f"Erreur: {str(e)}"
                 },
                 status="FAILURE"
             )
@@ -678,15 +617,12 @@ class OutilsCode:
                 
                 # LOG FICHIER INEXISTANT
                 log_experiment(
-                    agent_name="Toolsmith_Agent",
-                    model_used="python_tool",
+                    agent_name="AuditorAgent",
+                    model_used=TOOLSMITH_MODEL,
                     action=ActionType.ANALYSIS,
                     details={
                         "input_prompt": f"Obtenir info fichier {chemin_fichier}",
-                        "output_response": f"Fichier non trouvé: {chemin_fichier}",
-                        "file_analyzed": chemin_fichier,
-                        "tool_used": "obtenir_info_fichier",
-                        "exists": False
+                        "output_response": f"Fichier non trouvé: {chemin_fichier}"
                     },
                     status="SUCCESS"
                 )
@@ -718,17 +654,12 @@ class OutilsCode:
             
             # LOG SUCCÈS
             log_experiment(
-                agent_name="Toolsmith_Agent",
-                model_used="python_tool",
+                agent_name="AuditorAgent",
+                model_used=TOOLSMITH_MODEL,
                 action=ActionType.ANALYSIS,
                 details={
                     "input_prompt": f"Obtenir info fichier {chemin_fichier}",
-                    "output_response": f"Informations obtenues: {info['nom']} - {info['taille']} octets",
-                    "file_analyzed": chemin_fichier,
-                    "tool_used": "obtenir_info_fichier",
-                    "file_size": info.get("taille", 0),
-                    "is_python_file": chemin_fichier.endswith('.py'),
-                    "lines_of_code": info.get("lignes_code", "N/A")
+                    "output_response": f"Informations obtenues: {info['nom']} - {info['taille']} octets"
                 },
                 status="SUCCESS"
             )
@@ -743,105 +674,17 @@ class OutilsCode:
             
             # LOG ERREUR
             log_experiment(
-                agent_name="Toolsmith_Agent",
-                model_used="python_tool",
+                agent_name="AuditorAgent",
+                model_used=TOOLSMITH_MODEL,
                 action=ActionType.ANALYSIS,
                 details={
                     "input_prompt": f"Obtenir info fichier {chemin_fichier}",
-                    "output_response": error_msg,
-                    "file_analyzed": chemin_fichier,
-                    "tool_used": "obtenir_info_fichier",
-                    "error_type": type(e).__name__
+                    "output_response": error_msg
                 },
                 status="FAILURE"
             )
             
             return info
-    
-    # ---------- UTILITAIRE ----------
-    def creer_structure_dossiers(self, structure: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Crée une structure de dossiers et fichiers dans le sandbox.
-        
-        Args:
-            structure: Dictionnaire décrivant la structure
-            
-        Returns:
-            Statut de la création
-        """
-        try:
-            # LOG DÉBUT
-            log_experiment(
-                agent_name="Toolsmith_Agent",
-                model_used="python_tool",
-                action=ActionType.GENERATION,
-                details={
-                    "input_prompt": "Créer structure de dossiers",
-                    "output_response": f"Début création: {len(structure.get('dossiers', []))} dossiers, {len(structure.get('fichiers', []))} fichiers",
-                    "tool_used": "creer_structure_dossiers",
-                    "folders_to_create": len(structure.get('dossiers', [])),
-                    "files_to_create": len(structure.get('fichiers', []))
-                },
-                status="STARTED"
-            )
-            
-            resultats = {"dossiers_crees": [], "fichiers_crees": [], "erreurs": []}
-            
-            # Créer les dossiers
-            for dossier in structure.get("dossiers", []):
-                try:
-                    chemin_dossier = self.securite.obtenir_chemin_securise(dossier)
-                    os.makedirs(chemin_dossier, exist_ok=True)
-                    resultats["dossiers_crees"].append(dossier)
-                except Exception as e:
-                    resultats["erreurs"].append(f"Erreur création dossier {dossier}: {str(e)}")
-            
-            # Créer les fichiers
-            for fichier_info in structure.get("fichiers", []):
-                try:
-                    chemin_fichier = fichier_info["chemin"]
-                    contenu = fichier_info.get("contenu", "")
-                    self.ecrire_fichier(chemin_fichier, contenu, sauvegarde=False)
-                    resultats["fichiers_crees"].append(chemin_fichier)
-                except Exception as e:
-                    resultats["erreurs"].append(f"Erreur création fichier {fichier_info.get('chemin')}: {str(e)}")
-            
-            resultats["succes"] = len(resultats["erreurs"]) == 0
-            
-            # LOG RÉSULTAT
-            log_experiment(
-                agent_name="Toolsmith_Agent",
-                model_used="python_tool",
-                action=ActionType.GENERATION,
-                details={
-                    "input_prompt": "Créer structure de dossiers",
-                    "output_response": f"Création terminée: {len(resultats['dossiers_crees'])} dossiers, {len(resultats['fichiers_crees'])} fichiers, {len(resultats['erreurs'])} erreurs",
-                    "tool_used": "creer_structure_dossiers",
-                    "folders_created": len(resultats["dossiers_crees"]),
-                    "files_created": len(resultats["fichiers_crees"]),
-                    "errors_count": len(resultats["erreurs"]),
-                    "success": resultats["succes"]
-                },
-                status="SUCCESS" if resultats["succes"] else "FAILURE"
-            )
-            
-            return resultats
-            
-        except Exception as e:
-            # LOG ERREUR
-            log_experiment(
-                agent_name="Toolsmith_Agent",
-                model_used="python_tool",
-                action=ActionType.GENERATION,
-                details={
-                    "input_prompt": "Créer structure de dossiers",
-                    "output_response": f"Erreur: {str(e)}",
-                    "tool_used": "creer_structure_dossiers",
-                    "error_type": type(e).__name__
-                },
-                status="FAILURE"
-            )
-            raise
 
 
 # Fonctions utilitaires pour compatibilité
