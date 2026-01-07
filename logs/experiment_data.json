@@ -703,5 +703,47 @@
             "file": "./sandbox\\test2.py"
         },
         "status": "SUCCESS"
+    },
+    {
+        "id": "56f67f0f-6429-46de-b01f-53c5775e9d35",
+        "timestamp": "2026-01-06T16:43:48.265242",
+        "agent": "PromptManager",
+        "model": "gemini-2.0-flash",
+        "action": "CODE_GEN",
+        "details": {
+            "prompt_type": "auditor",
+            "input_prompt": "Getting auditor prompt template",
+            "output_response": "Prompt retrieved successfully",
+            "code_length": 20
+        },
+        "status": "SUCCESS"
+    },
+    {
+        "id": "8fecd3ab-f6c9-4c33-9e6a-30c0cc884ef1",
+        "timestamp": "2026-01-06T16:43:48.297487",
+        "agent": "PromptManager",
+        "model": "gemini-2.0-flash",
+        "action": "CODE_GEN",
+        "details": {
+            "prompt_type": "auditor",
+            "input_prompt": "Getting auditor prompt template",
+            "output_response": "Prompt retrieved successfully",
+            "code_length": 41
+        },
+        "status": "SUCCESS"
+    },
+    {
+        "id": "e0f707cc-a3df-49d5-92d7-c23b60d091d9",
+        "timestamp": "2026-01-06T16:43:48.317191",
+        "agent": "PromptManager",
+        "model": "gemini-2.0-flash",
+        "action": "CODE_GEN",
+        "details": {
+            "prompt_type": "fixer",
+            "input_prompt": "Getting fixer prompt template",
+            "output_response": "Prompt formatted with code and audit",
+            "code_length": 41
+        },
+        "status": "SUCCESS"
     }
 ]
