@@ -15,7 +15,7 @@ class TestRefactoringComplete:
         
         # Créer un fichier Python buggé
         broken_code = f"{sandbox}/broken_app.py"
-        with open(broken_code, 'w') as f:
+        with open(broken_code, 'w', encoding='utf-8') as f:
             f.write("""
 def calculate_total(items):
     # Bug: missing input validation
@@ -57,7 +57,9 @@ class OrderProcessor:
         result = subprocess.run(
             ["python", "main.py", "--target_dir", sandbox_setup],
             capture_output=True,
-            timeout=60
+            timeout=60,
+            text=True,
+            encoding='utf-8'
         )
         
         # Le système ne doit pas crash
@@ -65,7 +67,7 @@ class OrderProcessor:
         
         # Étape 2 : Vérifier que les fichiers ont été modifiés
         modified_file = f"{sandbox_setup}/broken_app.py"
-        with open(modified_file, 'r') as f:
+        with open(modified_file, 'r', encoding='utf-8') as f:
             modified_code = f.read()
         
         # Le code doit avoir changé (au minimum, ajout de docstrings)
@@ -75,7 +77,9 @@ class OrderProcessor:
         # Étape 3 : Vérifier que les tests passent
         test_result = subprocess.run(
             ["python", "-m", "pytest", modified_file, "-v"],
-            capture_output=True
+            capture_output=True,
+            text=True,
+            encoding='utf-8'
         )
         # Note: Si l'agent génère des tests, ils doivent passer
         
@@ -83,7 +87,7 @@ class OrderProcessor:
         log_file = "logs/experiment_data.json"
         assert os.path.exists(log_file), "Log file not created"
         
-        with open(log_file, 'r') as f:
+        with open(log_file, 'r', encoding='utf-8') as f:
             logs = json.load(f)
             # Vérifier qu'il y a au moins une action ANALYSIS et une action FIX
             actions = [log["action"] for log in logs]
@@ -105,7 +109,7 @@ class OrderProcessor:
         """
         # Créer un fichier sans tests
         code_file = f"{sandbox_setup}/no_tests.py"
-        with open(code_file, 'w') as f:
+        with open(code_file, 'w', encoding='utf-8') as f:
             f.write("""
 def greet(name):
     return f"Hello {name}"
@@ -118,7 +122,9 @@ def add(a, b):
         result = subprocess.run(
             ["python", "main.py", "--target_dir", sandbox_setup],
             capture_output=True,
-            timeout=60
+            timeout=60,
+            text=True,
+            encoding='utf-8'
         )
         
         assert result.returncode == 0
@@ -127,7 +133,7 @@ def add(a, b):
         test_file = f"{sandbox_setup}/test_no_tests.py"
         # Ou vérifier dans les logs qu'une action GENERATION a eu lieu
         
-        with open("logs/experiment_data.json", 'r') as f:
+        with open("logs/experiment_data.json", 'r', encoding='utf-8') as f:
             logs = json.load(f)
             generation_actions = [log for log in logs if log["action"] == "GENERATION"]
             assert len(generation_actions) > 0, "No tests were generated"
@@ -149,7 +155,7 @@ def add(a, b):
         """
         # Créer du code complexe avec multiples bugs
         complex_code = f"{sandbox_setup}/complex.py"
-        with open(complex_code, 'w') as f:
+        with open(complex_code, 'w', encoding='utf-8') as f:
             f.write("""
 def process_data(data):
     result = []
@@ -167,13 +173,15 @@ def process_data(data):
         result = subprocess.run(
             ["python", "main.py", "--target_dir", sandbox_setup],
             capture_output=True,
-            timeout=120  # Plus de temps pour les itérations
+            timeout=120,  # Plus de temps pour les itérations
+            text=True,
+            encoding='utf-8'
         )
         
         assert result.returncode == 0, "System crashed"
         
         # Vérifier le nombre d'itérations
-        with open("logs/experiment_data.json", 'r') as f:
+        with open("logs/experiment_data.json", 'r', encoding='utf-8') as f:
             logs = json.load(f)
             max_iteration = max(
                 [log.get("metadata", {}).get("iteration", 0) for log in logs]
@@ -191,7 +199,7 @@ def process_data(data):
         
         # Créer un fichier dehors du sandbox
         outside_file = "outside_test.py"
-        with open(outside_file, 'w') as f:
+        with open(outside_file, 'w', encoding='utf-8') as f:
             f.write("original_content = True")
         
         try:
@@ -199,11 +207,13 @@ def process_data(data):
             subprocess.run(
                 ["python", "main.py", "--target_dir", sandbox_setup],
                 capture_output=True,
-                timeout=60
+                timeout=60,
+                text=True,
+                encoding='utf-8'
             )
             
             # Vérifier que le fichier dehors n'a pas changé
-            with open(outside_file, 'r') as f:
+            with open(outside_file, 'r', encoding='utf-8') as f:
                 content = f.read()
                 assert content == "original_content = True", \
                     "File outside sandbox was modified!"
@@ -211,3 +221,45 @@ def process_data(data):
         finally:
             if os.path.exists(outside_file):
                 os.remove(outside_file)
+    
+    def test_tc_005_error_handling_and_unicode(self, sandbox_setup):
+        """
+        TC-005 : Gestion des erreurs et problèmes d'encodage
+        
+        Scénario :
+            Vérifier que le système gère correctement les erreurs
+            et les problèmes d'encodage Unicode
+        """
+        # Créer un fichier avec du contenu Unicode
+        unicode_file = f"{sandbox_setup}/unicode_test.py"
+        with open(unicode_file, 'w', encoding='utf-8') as f:
+            f.write("""
+# Fichier avec caractères spéciaux
+def greet_french(name):
+    '''Bonjour {name} !'''
+    return f"Bonjour {name} ! Ça va ?"
+
+# Caractères spéciaux dans les commentaires
+# éèàùç€
+def calculate_price(price, tax):
+    return price * (1 + tax)
+""")
+        
+        # Lancer le système
+        result = subprocess.run(
+            ["python", "main.py", "--target_dir", sandbox_setup],
+            capture_output=True,
+            timeout=60,
+            text=True,
+            encoding='utf-8'
+        )
+        
+        # Le système ne doit pas crash à cause de l'Unicode
+        assert result.returncode == 0, f"System crashed with Unicode: {result.stderr}"
+        
+        # Vérifier que le fichier a été traité
+        if os.path.exists(unicode_file):
+            with open(unicode_file, 'r', encoding='utf-8') as f:
+                content = f.read()
+                # Le fichier doit contenir du code Python valide
+                assert "def " in content, "File should contain Python functions"
