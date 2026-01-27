@@ -3,117 +3,9 @@ import subprocess
 import sys
 import json
 from datetime import datetime
-from enum import Enum
 from typing import List, Dict, Any
 from pathlib import Path
-
-class ActionType(Enum):
-    ANALYSIS = "analysis"
-    FIX = "fix"
-    DEBUG = "debug"
-    VERIFICATION = "verification"
-
-def log_experiment(
-    agent_name: str,
-    model_used: str,
-    action: ActionType,
-    details: Dict[str, Any],
-    status: str
-) -> None:
-    """
-    Fonction de logging pour experiment_data.json
-    """
-    try:
-        # CORRECTION ULTIME: S'assurer que details est un dict avec TOUS les champs requis
-        if not isinstance(details, dict):
-            details = {"input_prompt": str(details), "output_response": "N/A"}
-        else:
-            # Faire une COPIE pour ne pas modifier l'original
-            details = details.copy()
-        
-        # GARANTIR ABSOLUMENT les champs obligatoires avec des valeurs significatives
-        required_fields = ["input_prompt", "output_response"]
-        
-        # Pour input_prompt: utiliser une valeur par défaut intelligente
-        if "input_prompt" not in details:
-            # Essayer de deviner le prompt à partir du contexte
-            tool_used = details.get("tool_used", "unknown_tool")
-            file_info = details.get("file_analyzed") or details.get("file_modified") or details.get("test_path") or details.get("directory") or "unknown_file"
-            details["input_prompt"] = f"Exécution de {tool_used} sur {file_info}"
-        
-        # Pour output_response: utiliser une valeur par défaut
-        if "output_response" not in details:
-            # Si on a une clé 'erreur' ou 'resultat', l'utiliser
-            if "erreur" in details:
-                details["output_response"] = f"Erreur: {details['erreur']}"
-            elif "resultat" in details:
-                details["output_response"] = str(details["resultat"])
-            else:
-                # Sinon, message générique basé sur le statut
-                details["output_response"] = f"Action {action.value} terminée avec statut: {status}"
-        
-        # Créer l'entrée de log
-        log_entry = {
-            "timestamp": datetime.now().isoformat(),
-            "agent_name": agent_name,
-            "model_used": model_used,
-            "action": action.value,
-            "details": details,
-            "status": status
-        }
-        
-        # S'assurer que le répertoire logs existe
-        log_dir = "logs"
-        os.makedirs(log_dir, exist_ok=True)
-        
-        # Chemin du fichier de logs
-        log_file = os.path.join(log_dir, "experiment_data.json")
-        
-        # Lire les logs existants ou créer une nouvelle liste
-        if os.path.exists(log_file):
-            try:
-                with open(log_file, 'r', encoding='utf-8') as f:
-                    logs = json.load(f)
-                    
-                # CORRECTION CRITIQUE: Nettoyer les anciens logs qui n'ont pas les champs requis
-                cleaned_logs = []
-                for log in logs:
-                    log_details = log.get("details", {})
-                    if not isinstance(log_details, dict):
-                        log_details = {"input_prompt": "Ancien log formaté", "output_response": str(log_details)}
-                    elif "input_prompt" not in log_details or "output_response" not in log_details:
-                        # Rétro-ajouter les champs manquants aux anciens logs
-                        if not isinstance(log_details, dict):
-                            log_details = {}
-                        
-                        if "input_prompt" not in log_details:
-                            log_details["input_prompt"] = f"Ancien log - {log.get('action', 'unknown')}"
-                        if "output_response" not in log_details:
-                            log_details["output_response"] = f"Statut: {log.get('status', 'unknown')}"
-                    
-                    # Mettre à jour les détails nettoyés
-                    log["details"] = log_details
-                    cleaned_logs.append(log)
-                
-                logs = cleaned_logs
-                
-            except (json.JSONDecodeError, FileNotFoundError):
-                logs = []
-        else:
-            logs = []
-        
-        # Ajouter la nouvelle entrée
-        logs.append(log_entry)
-        
-        # Écrire dans le fichier
-        with open(log_file, 'w', encoding='utf-8') as f:
-            json.dump(logs, f, indent=2, default=str)
-        
-        # Afficher un message de confirmation (optionnel)
-        print(f"[LOG] {agent_name} - {action.value} - {status}")
-        
-    except Exception as e:
-        print(f"⚠️ Erreur de logging: {e}")
+from src.utils.logger import log_experiment, ActionType
 
 def lire_fichier(chemin_fichier: str) -> str:
     """
@@ -125,24 +17,24 @@ def lire_fichier(chemin_fichier: str) -> str:
 
         if not os.path.isfile(chemin_fichier):
             resultat = f"Erreur: Le chemin '{chemin_fichier}' ne correspond pas à un fichier."
-            # LOG ERREUR
+            
             log_experiment(
                 agent_name="Toolsmith_Agent",
                 model_used="python_tool",
-                action=ActionType.ANALYSIS,
+                action=ActionType.ANALYSIS,  
+
                 details={
                     "input_prompt": f"Lecture du fichier {chemin_fichier}",
-                    "output_response": resultat,
+                    "output_response": resultat,  # OBLIGATOIRE
                     "file_analyzed": chemin_fichier,
                     "tool_used": "lire_fichier"
                 },
-                status="ERROR"
+                status="FAILURE"  # ❌ CORRECTION: "FAILURE" pas "ERROR"
             )
             return resultat
             
         if not os.path.exists(chemin_fichier):
             resultat = f"Erreur: Le chemin '{chemin_fichier}' n'existe pas."
-            # LOG ERREUR
             log_experiment(
                 agent_name="Toolsmith_Agent",
                 model_used="python_tool",
@@ -153,7 +45,7 @@ def lire_fichier(chemin_fichier: str) -> str:
                     "file_analyzed": chemin_fichier,
                     "tool_used": "lire_fichier"
                 },
-                status="ERROR"
+                status="FAILURE"  # ❌ CORRECTION
             )
             return resultat
 
@@ -169,7 +61,8 @@ def lire_fichier(chemin_fichier: str) -> str:
                 "input_prompt": f"Lecture du fichier {chemin_fichier}",
                 "output_response": f"Fichier lu avec succès: {len(contenu)} caractères",
                 "file_analyzed": chemin_fichier,
-                "tool_used": "lire_fichier"
+                "tool_used": "lire_fichier",
+                "content_length": len(contenu)
             },
             status="SUCCESS"
         )
@@ -186,9 +79,10 @@ def lire_fichier(chemin_fichier: str) -> str:
                 "input_prompt": f"Lecture du fichier {chemin_fichier}",
                 "output_response": resultat,
                 "file_analyzed": chemin_fichier,
-                "tool_used": "lire_fichier"
+                "tool_used": "lire_fichier",
+                "error_type": "PermissionError"
             },
-            status="ERROR"
+            status="FAILURE"  # ❌ CORRECTION
         )
         return resultat
         
@@ -202,9 +96,10 @@ def lire_fichier(chemin_fichier: str) -> str:
                 "input_prompt": f"Lecture du fichier {chemin_fichier}",
                 "output_response": resultat,
                 "file_analyzed": chemin_fichier,
-                "tool_used": "lire_fichier"
+                "tool_used": "lire_fichier",
+                "error_type": "UnicodeDecodeError"
             },
-            status="ERROR"
+            status="FAILURE"  # ❌ CORRECTION
         )
         return resultat
         
@@ -218,9 +113,10 @@ def lire_fichier(chemin_fichier: str) -> str:
                 "input_prompt": f"Lecture du fichier {chemin_fichier}",
                 "output_response": resultat,
                 "file_analyzed": chemin_fichier,
-                "tool_used": "lire_fichier"
+                "tool_used": "lire_fichier",
+                "error_type": type(e).__name__
             },
-            status="ERROR"
+            status="FAILURE"  # ❌ CORRECTION
         )
         return resultat
 
@@ -243,7 +139,7 @@ def ecrire_fichier(chemin_fichier: str, contenu: str) -> str:
             log_experiment(
                 agent_name="Toolsmith_Agent",
                 model_used="python_tool",
-                action=ActionType.FIX,
+                action=ActionType.FIX,  # ❌ CORRECTION: ActionType.FIX 
                 details={
                     "input_prompt": f"Écriture dans le fichier {chemin_fichier}",
                     "output_response": resultat,
@@ -251,7 +147,7 @@ def ecrire_fichier(chemin_fichier: str, contenu: str) -> str:
                     "tool_used": "ecrire_fichier",
                     "security_breach": True
                 },
-                status="ERROR"
+                status="FAILURE"  # ❌ CORRECTION
             )
             return resultat
         
@@ -278,7 +174,7 @@ def ecrire_fichier(chemin_fichier: str, contenu: str) -> str:
                     log_experiment(
                         agent_name="Toolsmith_Agent",
                         model_used="python_tool",
-                        action=ActionType.FIX,
+                        action=ActionType.FIX,  # ❌ CORRECTION
                         details={
                             "input_prompt": f"Écriture dans le fichier {chemin_fichier}",
                             "output_response": resultat,
@@ -297,11 +193,10 @@ def ecrire_fichier(chemin_fichier: str, contenu: str) -> str:
                             with open(chemin_fichier, 'w', encoding='utf-8') as fichier_original:
                                 fichier_original.write(fichier_sauvegarde.read())
                     resultat = f"Erreur: Échec de vérification. Le contenu dans '{chemin_fichier}' ne correspond pas au contenu attendu."
-                    # LOG ERREUR VÉRIFICATION
                     log_experiment(
                         agent_name="Toolsmith_Agent",
                         model_used="python_tool",
-                        action=ActionType.FIX,
+                        action=ActionType.FIX,  # ❌ CORRECTION
                         details={
                             "input_prompt": f"Écriture dans le fichier {chemin_fichier}",
                             "output_response": resultat,
@@ -309,7 +204,7 @@ def ecrire_fichier(chemin_fichier: str, contenu: str) -> str:
                             "tool_used": "ecrire_fichier",
                             "verification_failed": True
                         },
-                        status="ERROR"
+                        status="FAILURE"  # ❌ CORRECTION
                     )
                     return resultat
         else:
@@ -317,14 +212,14 @@ def ecrire_fichier(chemin_fichier: str, contenu: str) -> str:
             log_experiment(
                 agent_name="Toolsmith_Agent",
                 model_used="python_tool",
-                action=ActionType.FIX,
+                action=ActionType.FIX,  # ❌ CORRECTION
                 details={
                     "input_prompt": f"Écriture dans le fichier {chemin_fichier}",
                     "output_response": resultat,
                     "file_modified": chemin_fichier,
                     "tool_used": "ecrire_fichier"
                 },
-                status="ERROR"
+                status="FAILURE"  # ❌ CORRECTION
             )
             return resultat
             
@@ -333,14 +228,15 @@ def ecrire_fichier(chemin_fichier: str, contenu: str) -> str:
         log_experiment(
             agent_name="Toolsmith_Agent",
             model_used="python_tool",
-            action=ActionType.FIX,
+            action=ActionType.FIX,  # ❌ CORRECTION
             details={
                 "input_prompt": f"Écriture dans le fichier {chemin_fichier}",
                 "output_response": resultat,
                 "file_modified": chemin_fichier,
-                "tool_used": "ecrire_fichier"
+                "tool_used": "ecrire_fichier",
+                "error_type": type(e).__name__
             },
-            status="ERROR"
+            status="FAILURE"  # ❌ CORRECTION
         )
         return resultat
 
@@ -363,7 +259,7 @@ def executer_pylint(chemin_fichier: str) -> str:
                     "file_analyzed": chemin_fichier,
                     "tool_used": "executer_pylint"
                 },
-                status="ERROR"
+                status="FAILURE"  # ❌ CORRECTION
             )
             return resultat
         
@@ -379,7 +275,7 @@ def executer_pylint(chemin_fichier: str) -> str:
                     "file_analyzed": chemin_fichier,
                     "tool_used": "executer_pylint"
                 },
-                status="ERROR"
+                status="FAILURE"  # ❌ CORRECTION
             )
             return resultat
             
@@ -395,7 +291,7 @@ def executer_pylint(chemin_fichier: str) -> str:
                     "file_analyzed": chemin_fichier,
                     "tool_used": "executer_pylint"
                 },
-                status="ERROR"
+                status="FAILURE"  # ❌ CORRECTION
             )
             return resultat
 
@@ -437,7 +333,7 @@ def executer_pylint(chemin_fichier: str) -> str:
             resume = f"RÉSUMÉ PYLINT: {erreurs} erreur(s), {avertissements} avertissement(s), "
             resume += f"{conventions} problème(s) de convention, {refactorisations} suggestion(s) de refactorisation."
             parties_sortie.append(resume)
-            status_final = "SUCCESS"  # Même avec des erreurs, l'analyse est un succès
+            status_final = "SUCCESS"
         
         resultat_final = "\n".join(parties_sortie)
         
@@ -448,7 +344,7 @@ def executer_pylint(chemin_fichier: str) -> str:
             action=ActionType.ANALYSIS,
             details={
                 "input_prompt": f"Analyse pylint du fichier {chemin_fichier}",
-                "output_response": f"Analyse terminée: {resultat_subprocess.returncode} issues trouvées",
+                "output_response": f"Analyse terminée. Code de sortie: {resultat_subprocess.returncode}",
                 "file_analyzed": chemin_fichier,
                 "tool_used": "executer_pylint",
                 "pylint_exit_code": resultat_subprocess.returncode,
@@ -473,7 +369,7 @@ def executer_pylint(chemin_fichier: str) -> str:
                 "tool_used": "executer_pylint",
                 "timeout": True
             },
-            status="ERROR"
+            status="FAILURE"  # ❌ CORRECTION
         )
         return resultat
         
@@ -490,7 +386,7 @@ def executer_pylint(chemin_fichier: str) -> str:
                 "tool_used": "executer_pylint",
                 "pylint_not_found": True
             },
-            status="ERROR"
+            status="FAILURE"  # ❌ CORRECTION
         )
         return resultat
         
@@ -504,9 +400,10 @@ def executer_pylint(chemin_fichier: str) -> str:
                 "input_prompt": f"Analyse pylint du fichier {chemin_fichier}",
                 "output_response": resultat,
                 "file_analyzed": chemin_fichier,
-                "tool_used": "executer_pylint"
+                "tool_used": "executer_pylint",
+                "error_type": type(e).__name__
             },
-            status="ERROR"
+            status="FAILURE"  # ❌ CORRECTION
         )
         return resultat
 
@@ -572,11 +469,11 @@ def executer_pytest(chemin_test: str) -> str:
                     
         resultat_final = "\n".join(parties_sortie)
         
-        # LOG
+        
         log_experiment(
             agent_name="Toolsmith_Agent",
             model_used="python_tool",
-            action=ActionType.DEBUG,
+            action=ActionType.DEBUG,  # ActionType.DEBUG 
             details={
                 "input_prompt": f"Exécution pytest sur {chemin_test}",
                 "output_response": f"Tests exécutés: code de sortie {resultat_subprocess.returncode}",
@@ -584,7 +481,7 @@ def executer_pytest(chemin_test: str) -> str:
                 "tool_used": "executer_pytest",
                 "pytest_exit_code": resultat_subprocess.returncode
             },
-            status="SUCCESS" if resultat_subprocess.returncode in [0, 1] else "ERROR"
+            status="SUCCESS" if resultat_subprocess.returncode in [0, 1] else "FAILURE"  # ❌ CORRECTION
         )
         
         return resultat_final
@@ -599,9 +496,10 @@ def executer_pytest(chemin_test: str) -> str:
                 "input_prompt": f"Exécution pytest sur {chemin_test}",
                 "output_response": resultat,
                 "test_path": chemin_test,
-                "tool_used": "executer_pytest"
+                "tool_used": "executer_pytest",
+                "error_type": type(e).__name__
             },
-            status="ERROR"
+            status="FAILURE"  # ❌ CORRECTION
         )
         return resultat
 
@@ -652,7 +550,7 @@ def lister_fichiers_python(repertoire: str) -> List[str]:
                 "directory": repertoire,
                 "tool_used": "lister_fichiers_python",
                 "files_found": len(fichiers_python),
-                "files_list": fichiers_python[:10]  # Limiter à 10 fichiers pour éviter les logs trop longs
+                "files_sample": fichiers_python[:10]  # Limiter à 10 fichiers pour éviter les logs trop longs
             },
             status="SUCCESS"
         )
@@ -671,13 +569,11 @@ def lister_fichiers_python(repertoire: str) -> List[str]:
                 "output_response": error_msg,
                 "directory": repertoire,
                 "tool_used": "lister_fichiers_python",
-                "error": str(e)
+                "error_type": type(e).__name__
             },
-            status="ERROR"
+            status="FAILURE"  # ❌ CORRECTION
         )
         return []
-    
-
 
 def obtenir_info_fichier(chemin_fichier: str) -> Dict[str, Any]:
     """
@@ -702,7 +598,7 @@ def obtenir_info_fichier(chemin_fichier: str) -> Dict[str, Any]:
                     "tool_used": "obtenir_info_fichier",
                     "error_type": "file_not_found"
                 },
-                status="ERROR"
+                status="FAILURE"  # ❌ CORRECTION
             )
             return info
         
@@ -732,7 +628,7 @@ def obtenir_info_fichier(chemin_fichier: str) -> Dict[str, Any]:
             action=ActionType.ANALYSIS,
             details={
                 "input_prompt": f"Obtenir info fichier {chemin_fichier}",
-                "output_response": f"Informations obtenues pour {chemin_fichier}: {info['nom']} ({info['taille']} octets)",
+                "output_response": f"Informations obtenues pour {chemin_fichier}",
                 "file_analyzed": chemin_fichier,
                 "tool_used": "obtenir_info_fichier",
                 "file_size": info.get("taille", 0),
@@ -758,8 +654,8 @@ def obtenir_info_fichier(chemin_fichier: str) -> Dict[str, Any]:
                 "output_response": error_msg,
                 "file_analyzed": chemin_fichier,
                 "tool_used": "obtenir_info_fichier",
-                "error_type": "unexpected_error"
+                "error_type": type(e).__name__
             },
-            status="ERROR"
+            status="FAILURE"  # ❌ CORRECTION
         )
         return info

@@ -1,11 +1,47 @@
 [
-  {
-    "id": "9e82e9b0-9b43-4a78-af43-d5d5ef848a2f",
-    "timestamp": "2025-12-26T01:26:41.177789",
-    "agent": "System",
-    "model": "unknown",
-    "action": "STARTUP",
-    "details": "Target: ./sandbox",
-    "status": "INFO"
-  }
+    {
+        "id": "9e82e9b0-9b43-4a78-af43-d5d5ef848a2f",
+        "timestamp": "2025-12-26T01:26:41.177789",
+        "agent": "System",
+        "model": "unknown",
+        "action": "STARTUP",
+        "details": "Target: ./sandbox",
+        "status": "INFO"
+    },
+    {
+        "id": "9f10cb13-3c51-4972-8d25-e4b24b97129f",
+        "timestamp": "2026-01-06T03:19:24.309193",
+        "agent": "TEST_DataOfficer",
+        "model": "test-model",
+        "action": "CODE_ANALYSIS",
+        "details": {
+            "input_prompt": "Ceci est un test simple",
+            "output_response": "Le logger fonctionne bien"
+        },
+        "status": "SUCCESS"
+    },
+    {
+        "id": "440ba450-8a7f-44e7-8d2b-b9cc48037358",
+        "timestamp": "2026-01-06T20:19:29.166271",
+        "agent": "TEST_DataOfficer",
+        "model": "test-model",
+        "action": "CODE_ANALYSIS",
+        "details": {
+            "input_prompt": "Ceci est un test simple",
+            "output_response": "Le logger fonctionne bien"
+        },
+        "status": "SUCCESS"
+    },
+    {
+        "id": "e8684e72-a250-4aca-b286-4e17ab430b0c",
+        "timestamp": "2026-01-06T20:29:16.639820",
+        "agent": "TEST_DataOfficer",
+        "model": "test-model",
+        "action": "CODE_ANALYSIS",
+        "details": {
+            "input_prompt": "Ceci est un test simple",
+            "output_response": "Le logger fonctionne bien"
+        },
+        "status": "SUCCESS"
+    }
 ]
