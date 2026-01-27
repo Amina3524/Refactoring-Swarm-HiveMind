@@ -703,5 +703,198 @@
             "file": "./sandbox\\test2.py"
         },
         "status": "SUCCESS"
+    },
+    {
+        "id": "459c5ab4-e81b-4e16-8c1a-c15695cdd630",
+        "timestamp": "2026-01-06T08:40:12.598793",
+        "agent": "System",
+        "model": "system",
+        "action": "CODE_ANALYSIS",
+        "details": {
+            "input_prompt": "System startup",
+            "output_response": "Target directory: ./sandbox"
+        },
+        "status": "INFO"
+    },
+    {
+        "id": "5d1ac17c-430c-4d16-8912-a7b2d1d00c61",
+        "timestamp": "2026-01-06T08:40:13.273247",
+        "agent": "AuditorAgent",
+        "model": "gemini-2.0-flash",
+        "action": "CODE_ANALYSIS",
+        "details": {
+            "input_prompt": "Analyze ./sandbox\\test1.py",
+            "output_response": "{'status': 'success', 'message': 'Placeholder - implement me'}",
+            "file": "./sandbox\\test1.py"
+        },
+        "status": "SUCCESS"
+    },
+    {
+        "id": "0bf62385-6f2d-43a0-8f63-926965471722",
+        "timestamp": "2026-01-06T08:40:13.330818",
+        "agent": "FixerAgent",
+        "model": "gemini-2.0-flash",
+        "action": "FIX",
+        "details": {
+            "input_prompt": "Fix ./sandbox\\test1.py",
+            "output_response": "{'status': 'success', 'message': 'Placeholder - implement me'}",
+            "file": "./sandbox\\test1.py"
+        },
+        "status": "SUCCESS"
+    },
+    {
+        "id": "74de330b-cf87-4ebe-8dad-3cb80bf3694f",
+        "timestamp": "2026-01-06T08:40:13.405121",
+        "agent": "JudgeAgent",
+        "model": "gemini-2.0-flash",
+        "action": "DEBUG",
+        "details": {
+            "input_prompt": "Test ./sandbox\\test1.py",
+            "output_response": "{'status': 'success', 'message': 'Placeholder - implement me'}",
+            "file": "./sandbox\\test1.py"
+        },
+        "status": "SUCCESS"
+    },
+    {
+        "id": "d182dd03-95f0-4714-81d5-b31e516c1a2b",
+        "timestamp": "2026-01-06T08:40:13.505088",
+        "agent": "AuditorAgent",
+        "model": "gemini-2.0-flash",
+        "action": "CODE_ANALYSIS",
+        "details": {
+            "input_prompt": "Analyze ./sandbox\\test2.py",
+            "output_response": "{'status': 'success', 'message': 'Placeholder - implement me'}",
+            "file": "./sandbox\\test2.py"
+        },
+        "status": "SUCCESS"
+    },
+    {
+        "id": "fbb61052-1ca8-4c86-b112-59e397faa9b0",
+        "timestamp": "2026-01-06T08:40:13.566378",
+        "agent": "FixerAgent",
+        "model": "gemini-2.0-flash",
+        "action": "FIX",
+        "details": {
+            "input_prompt": "Fix ./sandbox\\test2.py",
+            "output_response": "{'status': 'success', 'message': 'Placeholder - implement me'}",
+            "file": "./sandbox\\test2.py"
+        },
+        "status": "SUCCESS"
+    },
+    {
+        "id": "1c535acb-5e80-4459-a0ef-9135f5db7ace",
+        "timestamp": "2026-01-06T08:40:13.640029",
+        "agent": "JudgeAgent",
+        "model": "gemini-2.0-flash",
+        "action": "DEBUG",
+        "details": {
+            "input_prompt": "Test ./sandbox\\test2.py",
+            "output_response": "{'status': 'success', 'message': 'Placeholder - implement me'}",
+            "file": "./sandbox\\test2.py"
+        },
+        "status": "SUCCESS"
+    },
+    {
+        "id": "f0148a02-4343-419e-b0d9-ecd8a0cfc5ea",
+        "timestamp": "2026-01-27T15:18:35.649426",
+        "agent": "AuditorAgent",
+        "model": "gemini-2.0-flash",
+        "action": "CODE_ANALYSIS",
+        "details": {
+            "input_prompt": "Analyzing test_bad_code.py",
+            "output_response": "{'critical_issues': [{'line': 10, 'type': 'security', 'description': 'Using eval() with user input is dangerous', 'suggestion': 'Remove eval() or implement input validation'}], 'major_issues': [{'line': 16, 'type': 'error_handling', 'description': 'Bare except clause (catches all exceptions)', 'suggestion': 'Specify exception types: except ValueError: or except Exception:'}], 'minor_issues': [{'line': 17, 'type': 'style', 'description': 'Simple print statement without formatting', 'suggestion': ",
+            "file": "test_bad_code.py",
+            "code_length": 419,
+            "issues_found": 3
+        },
+        "status": "SUCCESS"
+    },
+    {
+        "id": "ba3ab25f-7d82-4893-a291-55af80759b7d",
+        "timestamp": "2026-01-27T15:29:09.295824",
+        "agent": "AuditorAgent",
+        "model": "gemini-2.0-flash",
+        "action": "CODE_ANALYSIS",
+        "details": {
+            "input_prompt": "ROLE: Senior Python Code Auditor\nTASK: Analyze Python code for bugs and quality issues\n\nAVAILABLE TOOLS:\n- read_file(path): Reads a Python file\n- run_pylint(code): Returns code quality score (0-10)\n- extract_functions(code): Lists all functions\n- check_syntax(code): Finds syntax errors\n\nCODE TO ANALYZE:\ndef calculate_stats(data):\n    \"\"\"Calculate basic statistics.\"\"\"\n    if not data:\n        return None\n    \n    # Calculate mean\n    total = sum(data)\n    mean = total / len(data)  # Could divide by zero if len=0?\n    \n    # Calculate variance\n    variance = sum((x - mean) ** 2 for x in data) / len(data)\n    \n    return {\"mean\": mean, \"variance\": variance}\n\n# Test with user input\ndef process_user_input():\n    user_code = input(\"Enter Python code: \")\n    result = eval(user_code)  # SECURITY RISK!\n    print(f\"Result: {result}\")\n\n# Poor error handling\ndef risky_division(a, b):\n    try:\n        return a / b\n    except:  # Bare except - BAD!\n        return None\n\n# Style issues\nx=5  # No space...",
+            "output_response": "```json\n{\n    \"critical_issues\": [\n        {\n            \"line\": 20,\n            \"type\": \"security\",\n            \"description\": \"The `eval()` function is used directly on `user_code` obtained from `input()`. This is a severe security vulnerability, allowing an attacker to execute arbitrary Python code on the system (Remote Code Execution). This can lead to data breaches, system compromise, or denial of service.\",\n            \"suggestion\": \"NEVER use `eval()` or `exec()` with untrusted user input. Remove `eval(user_code)` and replace it with a safe parsing mechanism (e.g., `ast.literal_eval()` for simple data structures) or a completely different architectural approach that doesn't require arbitrary code execution. If dynamic behavior is needed, consider a whitelist of allowed operations or a sandboxed environment, though the latter is complex.\"\n        }\n    ],\n    \"major_issues\": [\n        {\n            \"line\": 27,\n            \"type\": \"runtime\",\n            \"description\": \"The `risky_...",
+            "file": "analysis_test.py",
+            "code_length": 1508,
+            "issues_found": 0,
+            "critical_issues": 0,
+            "major_issues": 0,
+            "minor_issues": 0,
+            "overall_risk": "high",
+            "llm_used": "real"
+        },
+        "status": "SUCCESS"
+    },
+    {
+        "id": "7eefb675-3ede-4dba-8be7-fb418d6c86c9",
+        "timestamp": "2026-01-27T15:49:43.629290",
+        "agent": "AuditorAgent",
+        "model": "gemini-2.0-flash",
+        "action": "CODE_ANALYSIS",
+        "details": {
+            "input_prompt": "ROLE: Senior Python Code Auditor\nTASK: Analyze Python code for bugs and quality issues\n\nAVAILABLE TOOLS:\n- read_file(path): Reads a Python file\n- run_pylint(code): Returns code quality score (0-10)\n- extract_functions(code): Lists all functions\n- check_syntax(code): Finds syntax errors\n\nCODE TO ANALYZE:\ndef hello(name):\n    print(f\"Hello, {name}!\")\n    \nhello(\"World\")\n\n\nANALYSIS INSTRUCTIONS:\n1. FIRST, check for CRITICAL issues:\n   - Syntax errors (will crash)\n   - Import errors (missing modules...",
+            "output_response": "```json\n{\n    \"critical_issues\": [],\n    \"major_issues\": [],\n    \"minor_issues\": [\n        {\n            \"line\": 1,\n            \"type\": \"logic\",\n            \"description\": \"The 'hello' function lacks a docstring. Docstrings are crucial for explaining the function's purpose, arguments, and return values, making the code easier to understand, maintain, and use by others (or your future self). Without it, users must infer its behavior from the implementation.\",\n            \"suggestion\": \"Add a docs...",
+            "file": "simple.py",
+            "issues_found": 1,
+            "critical_issues": 0,
+            "major_issues": 0,
+            "minor_issues": 1
+        },
+        "status": "SUCCESS"
+    },
+    {
+        "id": "ec19e6eb-7de4-4e92-b2b8-a978b5dd3f7f",
+        "timestamp": "2026-01-27T15:49:56.142688",
+        "agent": "AuditorAgent",
+        "model": "gemini-2.0-flash",
+        "action": "CODE_ANALYSIS",
+        "details": {
+            "input_prompt": "ROLE: Senior Python Code Auditor\nTASK: Analyze Python code for bugs and quality issues\n\nAVAILABLE TOOLS:\n- read_file(path): Reads a Python file\n- run_pylint(code): Returns code quality score (0-10)\n- extract_functions(code): Lists all functions\n- check_syntax(code): Finds syntax errors\n\nCODE TO ANALYZE:\ndef divide(a, b):\n    return a / b  # No error handling\n\nx = input(\"Enter number: \")\nresult = eval(x)  # Security risk!\nprint(result)\n\n\nANALYSIS INSTRUCTIONS:\n1. FIRST, check for CRITICAL issues:...",
+            "output_response": "```json\n{\n    \"critical_issues\": [\n        {\n            \"line\": 6,\n            \"type\": \"security\",\n            \"description\": \"The use of `eval()` with untrusted user input (`x`) is a severe security vulnerability. It allows an attacker to execute arbitrary Python code on the system, potentially leading to data theft, system compromise, or denial of service.\",\n            \"suggestion\": \"NEVER use `eval()` with user-provided input. Replace `eval()` with a safer alternative. If the intent is to c...",
+            "file": "buggy.py",
+            "issues_found": 5,
+            "critical_issues": 1,
+            "major_issues": 2,
+            "minor_issues": 2
+        },
+        "status": "SUCCESS"
+    },
+    {
+        "id": "e0319816-438b-41ff-b5f7-63742fffe0c0",
+        "timestamp": "2026-01-27T16:01:52.865894",
+        "agent": "AuditorAgent",
+        "model": "gemini-2.0-flash",
+        "action": "CODE_ANALYSIS",
+        "details": {
+            "input_prompt": "ROLE: Senior Python Code Auditor\nTASK: Analyze Python code for bugs and quality issues\n\nAVAILABLE TOOLS:\n- read_file(path): Reads a Python file\n- run_pylint(code): Returns code quality score (0-10)\n- extract_functions(code): Lists all functions\n- check_syntax(code): Finds syntax errors\n\nCODE TO ANALYZE:\ndef bad(x,y):  # Missing space\n    return x/y  # No zero check\n\nprint(bad(5,0))  # Will crash\n\n\nANALYSIS INSTRUCTIONS:\n1. FIRST, check for CRITICAL issues:\n   - Syntax errors (will crash)\n   - Im...",
+            "output_response": "```json\n{\n    \"critical_issues\": [],\n    \"major_issues\": [\n        {\n            \"line\": 2,\n            \"type\": \"runtime\",\n            \"description\": \"The 'bad' function performs division (x / y) without checking if the divisor 'y' is zero. This will lead to a 'ZeroDivisionError' when 'y' is 0, as demonstrated by the call 'bad(5,0)' on line 4. This is a critical runtime error that will crash the program.\",\n            \"suggestion\": \"Implement robust error handling for division by zero. Add a con...",
+            "file": "test.py",
+            "issues_found": 3,
+            "critical_issues": 0,
+            "major_issues": 1,
+            "minor_issues": 2
+        },
+        "status": "SUCCESS"
+    },
+    {
+        "id": "73fee381-5269-4da6-b793-b4affd82b48e",
+        "timestamp": "2026-01-27T16:04:32.653232",
+        "agent": "AuditorAgent",
+        "model": "gemini-2.0-flash",
+        "action": "CODE_ANALYSIS",
+        "details": {
+            "input_prompt": "ROLE: Senior Python Code Auditor\nTASK: Analyze Python code for bugs and quality issues\n\nAVAILABLE TOOLS:\n- read_file(path): Reads a Python file\n- run_pylint(code): Returns code quality score (0-10)\n- extract_functions(code): Lists all functions\n- check_syntax(code): Finds syntax errors\n\nCODE TO ANALYZE:\ndef calculate(x, y):\n        return x / y  # No error handling\n    \n    result = calculate(10, 0)\n    print(result)\n    \n\nANALYSIS INSTRUCTIONS:\n1. FIRST, check for CRITICAL issues:\n   - Syntax e...",
+            "output_response": "```json\n{\n    \"critical_issues\": [\n        {\n            \"line\": 4,\n            \"type\": \"syntax\",\n            \"description\": \"IndentationError: Unexpected indent. The lines 'result = calculate(10, 0)' and 'print(result)' are indented but are not part of any block (like a function or class definition). This will prevent the script from executing.\",\n            \"suggestion\": \"Remove the leading indentation from lines 4 and 5 so they are at the top level of the script.\"\n        }\n    ],\n    \"major_...",
+            "file": "test_division.py",
+            "issues_found": 6,
+            "critical_issues": 1,
+            "major_issues": 2,
+            "minor_issues": 3
+        },
+        "status": "SUCCESS"
     }
 ]
