@@ -1,5 +1,5 @@
 """
-VALIDATEUR STRICT DES LOGS - Data Officer (VERSION CORRIGÉE selon logger)
+VALIDATEUR STRICT DES LOGS - Data Officer 
 Vérifie TOUS les critères du TP pour l'évaluation automatisée.
 COMPATIBLE avec le logger officiel.
 """
