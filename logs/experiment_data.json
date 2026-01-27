@@ -43,5 +43,101 @@
             "output_response": "Le logger fonctionne bien"
         },
         "status": "SUCCESS"
+    },
+    {
+        "id": "b05d1fae-b913-4d96-b8d4-8752097ceefe",
+        "timestamp": "2026-01-27T16:06:42.642940",
+        "agent": "System",
+        "model": "system",
+        "action": "CODE_ANALYSIS",
+        "details": {
+            "input_prompt": "System startup",
+            "output_response": "Target directory: tests/fixtures/sandbox_security"
+        },
+        "status": "INFO"
+    },
+    {
+        "id": "565f7ddb-b2dd-4fbb-b3b6-4e51caf1a146",
+        "timestamp": "2026-01-27T16:06:44.220707",
+        "agent": "System",
+        "model": "system",
+        "action": "CODE_ANALYSIS",
+        "details": {
+            "input_prompt": "System startup",
+            "output_response": "Target directory: tests/fixtures/sandbox_infinite"
+        },
+        "status": "INFO"
+    },
+    {
+        "id": "78825f35-671c-45f5-9476-77dc00f8522a",
+        "timestamp": "2026-01-27T16:06:45.524334",
+        "agent": "System",
+        "model": "system",
+        "action": "CODE_ANALYSIS",
+        "details": {
+            "input_prompt": "System startup",
+            "output_response": "Target directory: tests/fixtures/sandbox_iterations"
+        },
+        "status": "INFO"
+    },
+    {
+        "id": "12c1f354-25c4-4389-a61b-733946eaf828",
+        "timestamp": "2026-01-27T16:09:17.217456",
+        "agent": "System",
+        "model": "system",
+        "action": "CODE_ANALYSIS",
+        "details": {
+            "input_prompt": "System startup",
+            "output_response": "Target directory: tests/fixtures/sandbox_iterations"
+        },
+        "status": "INFO"
+    },
+    {
+        "id": "b8ceb5a9-48b0-401f-b054-02d6336a90e0",
+        "timestamp": "2026-01-27T16:12:10.709915",
+        "agent": "System",
+        "model": "system",
+        "action": "CODE_ANALYSIS",
+        "details": {
+            "input_prompt": "System startup",
+            "output_response": "Target directory: tests/fixtures/sandbox_security"
+        },
+        "status": "INFO"
+    },
+    {
+        "id": "8ec9922b-bd43-4628-aa9c-fe41a13d1403",
+        "timestamp": "2026-01-27T16:12:11.937193",
+        "agent": "System",
+        "model": "system",
+        "action": "CODE_ANALYSIS",
+        "details": {
+            "input_prompt": "System startup",
+            "output_response": "Target directory: tests/fixtures/sandbox_infinite"
+        },
+        "status": "INFO"
+    },
+    {
+        "id": "ed81cda2-f75d-4849-9465-4264f04b6595",
+        "timestamp": "2026-01-27T16:12:12.993323",
+        "agent": "System",
+        "model": "system",
+        "action": "CODE_ANALYSIS",
+        "details": {
+            "input_prompt": "System startup",
+            "output_response": "Target directory: tests/fixtures/sandbox_iterations"
+        },
+        "status": "INFO"
+    },
+    {
+        "id": "bc7a3a45-0115-4593-9948-f44bf9a733de",
+        "timestamp": "2026-01-27T16:13:07.999503",
+        "agent": "System",
+        "model": "system",
+        "action": "CODE_ANALYSIS",
+        "details": {
+            "input_prompt": "System startup",
+            "output_response": "Target directory: tests/fixtures/sandbox_test"
+        },
+        "status": "INFO"
     }
 ]
