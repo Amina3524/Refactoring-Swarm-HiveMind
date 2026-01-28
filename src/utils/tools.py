@@ -79,7 +79,7 @@ class OutilsCode:
                     
                     # LOG SUCCÈS
                     log_experiment(
-                        agent_name="Toolsmith_Agent",
+                        agent_name="AuditorAgent",
                         model_used=TOOLSMITH_MODEL,
                         action=ActionType.ANALYSIS,
                         details={
@@ -98,7 +98,7 @@ class OutilsCode:
         except Exception as e:
             # LOG ERREUR
             log_experiment(
-                agent_name="Toolsmith_Agent",
+                agent_name="AuditorAgent",
                 model_used=TOOLSMITH_MODEL,
                 action=ActionType.ANALYSIS,
                 details={
@@ -223,7 +223,7 @@ class OutilsCode:
                     "input_prompt": f"Analyse Pylint du fichier {chemin_fichier}",
                     "output_response": "Début de l'analyse Pylint"
                 },
-                status="STARTED"
+                status="SUCCESS"
             )
             
             # Exécuter Pylint en format JSON
@@ -405,13 +405,13 @@ class OutilsCode:
             # LOG DÉBUT
             log_experiment(
                 agent_name="JudgeAgent",
-                model_used="gemini-1.5-flash",
+                model_used=TOOLSMITH_MODEL,
                 action=ActionType.DEBUG,
                 details={
                     "input_prompt": f"Exécution Pytest sur {chemin_test if chemin_test else 'sandbox'}",
                     "output_response": "Début des tests Pytest"
                 },
-                status="STARTED"
+                status="SUCCESS"
             )
             
             # Déterminer les arguments Pytest
@@ -469,7 +469,7 @@ class OutilsCode:
             # LOG RÉSULTAT
             log_experiment(
                 agent_name="JudgeAgent",
-                model_used="gemini-1.5-flash",
+                model_used=TOOLSMITH_MODEL,
                 action=ActionType.DEBUG,
                 details={
                     "input_prompt": f"Exécution Pytest sur {chemin_test if chemin_test else 'sandbox'}",
