@@ -44,9 +44,9 @@ except ImportError:
             }
         
         def judge_validate(self, code):
-            import ast  # ← AJOUTEZ CE IMPORT
+            # Simule une validation basique
+            import ast
             try:
-                # Essayez de parser le code
                 ast.parse(code)
                 return {
                     "all_tests_pass": True,
@@ -55,12 +55,12 @@ except ImportError:
                 }
             except SyntaxError:
                 return {
-                   "all_tests_pass": False,  # ← FALSE pour code invalide !
-                   "tests_passed": 0,
-                   "failures": ["Syntax error"]
-               }
+                    "all_tests_pass": False,
+                    "tests_passed": 0,
+                    "failures": ["Syntax error"]
+                }
+        
         def run_workflow(self, code):
-            
             self.current_iteration = 1
             self.code_history.append(code)
             
@@ -178,8 +178,12 @@ def test():
         
         result = workflow.judge_validate(code)
         
+        # Maintenant le Judge doit détecter l'erreur de syntaxe
         assert result["all_tests_pass"] == False
         assert len(result["failures"]) > 0
+        # Vérifier que l'erreur de syntaxe est mentionnée
+        failures_text = " ".join(result["failures"]).lower()
+        assert "syntax" in failures_text or "erreur" in failures_text
     
     def test_complete_workflow_simple_code(self):
         """Tester le workflow complet sur du code simple"""
@@ -212,7 +216,7 @@ def add(a, b):
         workflow = AgentWorkflow()
         code = "def test(): pass"
         
-        result = workflow.run_workflow(code)
+        workflow.run_workflow(code)
         logs = workflow.get_logs()
         
         assert len(logs) > 0
