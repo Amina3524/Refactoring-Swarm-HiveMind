@@ -1,61 +1,145 @@
-# src/workflow/nodes.py - UPDATED VERSION
+"""
+Workflow Nodes
+These are the "stations" in our refactoring assembly line.
+Each node wraps an agent's execution.
+"""
+
 from typing import Dict, Any
-from src.workflow.state import WorkflowState
+from .state import WorkflowState
 from src.agents.auditor_agent import AuditorAgent
 from src.agents.fixer_agent import FixerAgent
 from src.agents.judge_agent import JudgeAgent
 
-# Initialize agents (singleton pattern)
+
+# Singleton agent instances (created once, reused for all files)
 _auditor = None
 _fixer = None
 _judge = None
 
-def _get_auditor():
+
+def _get_auditor() -> AuditorAgent:
+    """Get or create the Auditor agent."""
     global _auditor
     if _auditor is None:
         _auditor = AuditorAgent()
     return _auditor
 
-def _get_fixer():
+
+def _get_fixer() -> FixerAgent:
+    """Get or create the Fixer agent."""
     global _fixer
     if _fixer is None:
         _fixer = FixerAgent()
     return _fixer
 
-def _get_judge():
+
+def _get_judge() -> JudgeAgent:
+    """Get or create the Judge agent."""
     global _judge
     if _judge is None:
         _judge = JudgeAgent()
     return _judge
 
+
 def audit_node(state: WorkflowState) -> Dict[str, Any]:
-    """Station 1: Analyze the code"""
-    auditor = _get_auditor()
-    result = auditor.execute(state)
+    """
+    Node 1: Audit the code.
     
-    # Move to next station
-    state["current_phase"] = "fix"
-    return {**state, **result}
+    This station analyzes the code and creates a refactoring plan.
+    
+    Args:
+        state: Current workflow state
+    
+    Returns:
+        State updates from the Auditor agent
+    """
+    print("\n" + "="*60)
+    print("🔍 STATION 1: AUDIT")
+    print("="*60)
+    
+    auditor = _get_auditor()
+    updates = auditor.execute(state)
+    
+    # Move to next phase
+    updates["current_phase"] = "fix"
+    
+    return updates
+
 
 def fix_node(state: WorkflowState) -> Dict[str, Any]:
-    """Station 2: Fix the code"""
-    fixer = _get_fixer()
-    result = fixer.execute(state)
+    """
+    Node 2: Fix the code.
     
-    state["current_phase"] = "test"
-    return {**state, **result}
+    This station applies fixes based on the audit report.
+    
+    Args:
+        state: Current workflow state
+    
+    Returns:
+        State updates from the Fixer agent
+    """
+    print("\n" + "="*60)
+    print("🔧 STATION 2: FIX")
+    print("="*60)
+    
+    fixer = _get_fixer()
+    updates = fixer.execute(state)
+    
+    # Move to test phase
+    updates["current_phase"] = "test"
+    
+    return updates
+
 
 def test_node(state: WorkflowState) -> Dict[str, Any]:
-    """Station 3: Test the code"""
+    """
+    Node 3: Test the code.
+    
+    This station validates the fixes by running tests.
+    The Judge will set current_phase to:
+    - "done" if tests pass
+    - "retry" if tests fail and we should retry
+    - "error" if max iterations reached
+    
+    Args:
+        state: Current workflow state
+    
+    Returns:
+        State updates from the Judge agent
+    """
+    print("\n" + "="*60)
+    print("⚖️  STATION 3: TEST")
+    print("="*60)
+    
     judge = _get_judge()
-    result = judge.execute(state)
+    updates = judge.execute(state)
     
-    if result.get("test_result", {}).get("passed", False):
-        state["current_phase"] = "done"
-        state["success_files"].append(state["current_file"])
-    else:
-        # TODO: Handle retry logic
-        state["current_phase"] = "error"
-        state["failed_files"].append(state["current_file"])
+    # The Judge sets current_phase based on test results
+    # We don't override it here
     
-    return {**state, **result}
+    return updates
+
+
+def error_node(state: WorkflowState) -> Dict[str, Any]:
+    """
+    Node 4: Error handler.
+    
+    This station is reached when max iterations are exceeded.
+    
+    Args:
+        state: Current workflow state
+    
+    Returns:
+        State updates marking failure
+    """
+    print("\n" + "="*60)
+    print("❌ ERROR: Max iterations reached")
+    print("="*60)
+    
+    return {
+        "current_phase": "error",
+        "agent_outputs": {
+            **(state.get("agent_outputs") or {}),
+            "final_status": "FAILED - Max iterations"
+        }
+    }
