@@ -19,7 +19,7 @@ class LLMClient:
         Initialize the LLM client.
         
         Args:
-            model_name: Model to use (defaults to environment variable or gemini-2.0-flash-exp)
+            model_name: Model to use (defaults to environment variable or gemini-2.5-flash-exp)
         """
         # Get API key
         api_key = os.getenv("GOOGLE_API_KEY")
