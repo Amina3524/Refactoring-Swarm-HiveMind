@@ -1,0 +1,35 @@
+[
+  {
+    "agent": "System",
+    "timestamp": "2026-01-06T10:00:00",
+    "action": "STARTUP",
+    "status": "INFO",
+    "details": "Starting the system..."
+  },
+  {
+    "agent": "DataOfficer",
+    "model": "gemini",
+    "action": "ANALYZE",
+    "details": {
+      "note": "Just checking logs"
+    },
+    "timestamp": "2026-01-06T10:01:00",
+    "status": "WARNING"
+  },
+  {
+    "agent": "Auditor",
+    "model": "gemini-2.5-flash",
+    "action": "CODE_ANALYSIS",
+    "timestamp": "2026-01-06T10:02:00"
+  },
+  {
+    "timestamp": "2026-01-06T10:03:00",
+    "agent": "Fixer",
+    "model": "chatgpt",
+    "action": "FIX",
+    "details": {
+      "response": "I fixed it"
+    },
+    "status": "DONE"
+  }
+]
