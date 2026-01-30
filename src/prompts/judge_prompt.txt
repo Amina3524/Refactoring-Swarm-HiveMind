@@ -30,9 +30,15 @@ VALIDATION CHECKLIST:
    - Code is readable and maintainable
 
 DECISION MATRIX:
+<<<<<<< HEAD
 - ✅ APPROVE: If ALL tests pass AND pylint > 8.0
 - 🔄 RETRY: If tests fail OR pylint < 8.0
 - 🚫 REJECT: If critical functionality broken
+=======
+- APPROVE: If ALL tests pass AND pylint > 8.0
+- RETRY: If tests fail OR pylint < 8.0
+- REJECT: If critical functionality broken
+>>>>>>> 6e763dc1b5d5dba0ea4282c3a7990eb05f9a389e
 
 OUTPUT FORMAT (JSON):
 {

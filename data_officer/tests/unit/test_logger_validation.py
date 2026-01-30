@@ -46,12 +46,13 @@ class TestLoggerValidation:
     
     def test_input_prompt_mandatory(self):
         """CRITIQUE: Vérifie que input_prompt est obligatoire"""
+        # CORRECTION ICI : utiliser "CODE_ANALYSIS" au lieu de "ANALYSIS"
         test_logs = [
             {
                 "timestamp": "2024-01-01T10:00:00",
                 "agent": "Auditor",
                 "model": "gemini",
-                "action": "ANALYSIS",
+                "action": "CODE_ANALYSIS",  # CORRIGÉ
                 "details": {
                     # MANQUE input_prompt → DOIT ÉCHOUER
                     "output_response": "Test response"
@@ -117,12 +118,13 @@ class TestLoggerValidation:
     
     def test_valid_log_passes_validation(self):
         """Test qu'un log valide passe la validation"""
+        # CORRECTION ICI : utiliser les actions correctes
         test_logs = [
             {
                 "timestamp": "2024-01-01T10:00:00",
                 "agent": "Auditor_Agent",
                 "model": "gemini-2.5-flash",
-                "action": "ANALYSIS",
+                "action": "CODE_ANALYSIS",  # CORRIGÉ
                 "details": {
                     "input_prompt": "Analyse ce code Python",
                     "output_response": "J'ai trouvé des problèmes",
@@ -145,21 +147,18 @@ class TestLoggerValidation:
                 "status": "SUCCESS"
             },
             {
-            "timestamp": "2024-01-01T10:02:00",
-            "agent": "Judge_Agent",
-            "model": "gemini-2.5-flash",
-            "action": "DEBUG",  # Ou GENERATION pour les tests
-            "details": {
-                "input_prompt": "Vérifie si les tests passent",
-                "output_response": "Tests exécutés avec succès",
-                "test_results": "3 passed, 0 failed"
-            },
-            "status": "SUCCESS"
+                "timestamp": "2024-01-01T10:02:00",
+                "agent": "Judge_Agent",
+                "model": "gemini-2.5-flash",
+                "action": "CODE_GEN",  # CORRIGÉ (au lieu de DEBUG)
+                "details": {
+                    "input_prompt": "Vérifie si les tests passent",
+                    "output_response": "Tests exécutés avec succès",
+                    "test_results": "3 passed, 0 failed"
+                },
+                "status": "SUCCESS"
             }
-       ]
-    
-        
-        
+        ]
         
         with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
             json.dump(test_logs, f)
@@ -173,7 +172,7 @@ class TestLoggerValidation:
             is_valid, errors, stats = validate_strict_format()
 
             assert is_valid == True, f"Log valide mais erreurs: {errors}"
-            assert stats["total_entries"] == 3  # ← CORRECTION ICI !
+            assert stats["total_entries"] == 3
             
             # Optionnel: vérifier que les 3 agents sont là
             assert "Auditor_Agent" in stats.get("by_agent", {})
@@ -191,7 +190,8 @@ class TestLoggerValidation:
             "total_entries": 50,
             "by_status": {"SUCCESS": 45, "FAILURE": 5},
             "by_agent": {"Auditor": 20, "Fixer": 20, "Judge": 10},
-            "prompt_analysis": {"unique_prompts": 30}
+            "prompt_analysis": {"unique_prompts": 30},
+            "max_iteration": 5  # AJOUTÉ car nécessaire pour le calcul
         }
         
         score = calculate_quality_score(stats, errors=[], warnings=[])
@@ -259,11 +259,12 @@ class TestDataOfficerBasics:
     
     def test_required_fields_check(self):
         """Vérifie les champs requis manuellement"""
-        required_fields = ["timestamp", "agent", "action", "details", "status"]
+        required_fields = ["timestamp", "agent", "action", "details", "status", "model"]  # AJOUTÉ model
         
         # Entrée complète
         complete_entry = {field: "test" for field in required_fields}
         complete_entry["details"] = {"input_prompt": "test", "output_response": "test"}
+        complete_entry["action"] = "CODE_ANALYSIS"  # Action valide
         
         for field in required_fields:
             assert field in complete_entry

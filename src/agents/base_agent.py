@@ -1,35 +1,71 @@
-# src/agents/base_agent.py
+"""
+Base Agent Class
+All agents (Auditor, Fixer, Judge) inherit from this class.
+"""
+
 from abc import ABC, abstractmethod
 from typing import Dict, Any
 
+
 class BaseAgent(ABC):
-    """Base class for all agents"""
+    """
+    Abstract base class for all agents in the system.
+    Provides common functionality and enforces the agent interface.
+    """
     
-    def __init__(self, name: str, tools: Dict = None, prompts: Dict = None):
+    def __init__(self, name: str):
+        """
+        Initialize the base agent.
+        
+        Args:
+            name: Name of the agent (e.g., "AuditorAgent")
+        """
         self.name = name
-        self.tools = tools or {}
-        self.prompts = prompts or {}
+        print(f"[CREATED] {name} created")
+    
     
     @abstractmethod
     def execute(self, state: Dict[str, Any]) -> Dict[str, Any]:
-        """Execute the agent's task"""
+        """
+        Execute the agent's task.
+        
+        This method must be implemented by all agent subclasses.
+        
+        Args:
+            state: Current workflow state dictionary
+        
+        Returns:
+            Dictionary with updates to merge into state
+        """
         pass
     
-    def log_action(self, action_type: str, details: Dict):
-        """Helper method for logging"""
-        from src.utils.logger import log_experiment, ActionType
+    def _create_error_result(self, state: Dict[str, Any], error: str) -> Dict[str, Any]:
+        """
+        Create a standardized error result.
         
-        action_map = {
-            "analyze": ActionType.ANALYSIS,
-            "fix": ActionType.FIX,
-            "test": ActionType.DEBUG,
-            "generate": ActionType.GENERATION
+        Args:
+            state: Current state
+            error: Error message
+        
+        Returns:
+            State updates with error information
+        """
+        return {
+            "agent_outputs": {
+                **(state.get("agent_outputs") or {}),
+                f"{self.name}_error": error
+            },
+            "errors": [
+                *(state.get("errors") or []),
+                f"{self.name}: {error}"
+            ]
         }
+    
+    def _log(self, message: str):
+        """
+        Print a log message with agent name prefix.
         
-        log_experiment(
-            agent_name=self.name,
-            model_used="gemini-2.0-flash",
-            action=action_map.get(action_type, ActionType.ANALYSIS),
-            details=details,
-            status="SUCCESS"
-        )
+        Args:
+            message: Message to log
+        """
+        print(f"[{self.name}] {message}")

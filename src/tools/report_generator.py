@@ -43,7 +43,7 @@ class ReportGenerator:
                 return True
             return False
         except Exception as e:
-            print(f"Erreur lors du chargement des logs: {e}")
+            print(f"[REPORT] Erreur lors du chargement des logs: {e}")
             return False
     
     def generate_robustness_report(self) -> Dict[str, Any]:
@@ -115,13 +115,13 @@ class ReportGenerator:
         
         # Verdict
         if report["metrics"]["stability_score"] >= 80:
-            report["verdict"] = "✅ EXCELLENT"
+            report["verdict"] = "EXCELLENT"
         elif report["metrics"]["stability_score"] >= 60:
-            report["verdict"] = "🟡 BON"
+            report["verdict"] = "BON"
         elif report["metrics"]["stability_score"] >= 40:
-            report["verdict"] = "🟠 MOYEN"
+            report["verdict"] = "MOYEN"
         else:
-            report["verdict"] = "🔴 FAIBLE"
+            report["verdict"] = "FAIBLE"
         
         return report
     
@@ -196,13 +196,13 @@ class ReportGenerator:
         
         # Verdict
         if quality_score >= 80:
-            report["verdict"] = "✅ EXCELLENT"
+            report["verdict"] = "EXCELLENT"
         elif quality_score >= 60:
-            report["verdict"] = "🟡 BON"
+            report["verdict"] = "BON"
         elif quality_score >= 40:
-            report["verdict"] = "🟠 MOYEN"
+            report["verdict"] = "MOYEN"
         else:
-            report["verdict"] = "🔴 FAIBLE"
+            report["verdict"] = "FAIBLE"
         
         return report
     
@@ -294,26 +294,26 @@ class ReportGenerator:
         recommendations = []
         
         if robustness_score < 80:
-            recommendations.append("❌ Améliorer le taux de succès")
+            recommendations.append("[ERROR] Améliorer le taux de succès")
         
         if quality_score < 70:
-            recommendations.append("📝 Améliorer la qualité des logs")
+            recommendations.append("[DOC] Améliorer la qualité des logs")
         
         if execution["metrics"]["total_actions"] < 10:
-            recommendations.append("📊 Ajouter plus de logs")
+            recommendations.append("[DATA] Ajouter plus de logs")
         
         if not recommendations:
-            recommendations.append("✅ Tous les critères sont satisfaits!")
+            recommendations.append("[SUCCESS] Tous les critères sont satisfaits!")
         
         # Verdict global
         if global_score >= 85:
-            verdict = "🎉 EXCELLENT - Prêt pour la production"
+            verdict = "EXCELLENT - Prêt pour la production"
         elif global_score >= 70:
-            verdict = "🟡 BON - Quelques améliorations"
+            verdict = "BON - Quelques améliorations"
         elif global_score >= 50:
-            verdict = "🟠 MOYEN - Révisions recommandées"
+            verdict = "MOYEN - Révisions recommandées"
         else:
-            verdict = "🔴 FAIBLE - Corrections essentielles"
+            verdict = "FAIBLE - Corrections essentielles"
         
         summary = {
             "timestamp": datetime.now().isoformat(),
@@ -367,7 +367,7 @@ class ReportGenerator:
             files["summary"] = summary_file
         
         except Exception as e:
-            print(f"Erreur lors de la sauvegarde des rapports: {e}")
+            print(f"[REPORT] Erreur lors de la sauvegarde des rapports: {e}")
         
         return files
     
@@ -376,15 +376,15 @@ class ReportGenerator:
         summary = self.generate_final_summary()
         
         print("\n" + "=" * 80)
-        print("📊 RAPPORT FINAL - DATA OFFICER")
+        print("[REPORT] RAPPORT FINAL - DATA OFFICER")
         print("=" * 80)
         print(f"\n{summary['verdict']}")
-        print(f"\n🎯 Score Global: {summary['global_score']}/100")
-        print("\n📈 Scores par catégorie:")
+        print(f"\n[SCORE] Score Global: {summary['global_score']}/100")
+        print("\n[METRICS] Scores par catégorie:")
         print(f"  • Robustesse: {summary['sub_scores']['robustness']}/100")
         print(f"  • Qualité: {summary['sub_scores']['quality']}/100")
         print(f"  • Volume d'exécution: {summary['sub_scores']['execution_volume']}/100")
-        print("\n💡 Recommandations:")
+        print("\n[RECOMMEND] Recommandations:")
         for rec in summary["recommendations"]:
             print(f"  • {rec}")
         print("\n" + "=" * 80)

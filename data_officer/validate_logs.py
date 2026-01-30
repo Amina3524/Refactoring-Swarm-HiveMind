@@ -17,9 +17,7 @@ AGENT_PATTERNS = {
     'Judge': ['judge', 'validator', 'tester', 'test']
 }
 
-VALID_ACTIONS_OFFICIAL = ['ANALYSIS', 'GENERATION', 'DEBUG', 'FIX']
-VALID_ACTIONS_LEGACY = ['CODE_ANALYSIS', 'CODE_GEN', 'DEBUG', 'FIX']
-VALID_ACTIONS = VALID_ACTIONS_OFFICIAL + VALID_ACTIONS_LEGACY
+VALID_ACTIONS = ['CODE_ANALYSIS', 'CODE_GEN', 'DEBUG', 'FIX']
 
 VALID_MODELS = [
     'gemini-2.5-flash', 'gemini-pro', 'gpt-4', 'gpt-3.5-turbo',
@@ -173,7 +171,7 @@ def validate_strict_format() -> Tuple[bool, List[str], Dict[str, Any]]:
             if action not in VALID_ACTIONS:
                 entry_errors.append(
                     f"Action invalide: '{action}' "
-                    f"(attendus: {VALID_ACTIONS_OFFICIAL} ou {VALID_ACTIONS_LEGACY})"
+                    f"(attendus: {VALID_ACTIONS})"
                 )
             else:
                 statistics["by_action"][action] = \
@@ -227,7 +225,7 @@ def validate_strict_format() -> Tuple[bool, List[str], Dict[str, Any]]:
             action = entry.get('action', '')
             
             # Pour ANALYSIS, FIX, GENERATION : input_prompt OBLIGATOIRE
-            if action in VALID_ACTIONS_OFFICIAL + VALID_ACTIONS_LEGACY:
+            if action in VALID_ACTIONS:
                 if 'input_prompt' not in details:
                     entry_errors.append(
                         f"'input_prompt' OBLIGATOIRE dans details pour {action}"
