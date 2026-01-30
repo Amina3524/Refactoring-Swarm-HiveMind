@@ -134,7 +134,6 @@ IMPORTANT: Your response will be written directly to a .py file, so it must be p
         except Exception as e:
             self._log(f"Failed to save fixed code: {e}")
         
-        # Log the experiment - Use FIX action
         log_experiment(
             agent_name="FixerAgent",
             model_used=self.llm_client.model_name,
@@ -247,8 +246,7 @@ IMPORTANT: Your response will be written directly to a .py file, so it must be p
         Returns:
             Potentially fixed code
         """
-        # For now, just return the original
-        # In a production system, you might try common fixes
+        
         self._log("  Cannot auto-fix syntax error, returning as-is")
         return code
     

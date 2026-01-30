@@ -99,14 +99,12 @@ class JudgeAgent(BaseAgent):
             tests_passed=test_result.get("passed", False)
         )
         
-        # Log the experiment
-        # ✅ IMPORTANT : Si des tests sont générés, logue comme GENERATION
         action = ActionType.GENERATION if test_result.get("generated_tests", False) else ActionType.DEBUG
         
         log_experiment(
             agent_name="JudgeAgent",
-            model_used="pytest",  # Not using LLM here
-            action=action,  # ✅ GENERATION si tests générés, sinon DEBUG
+            model_used="pytest",  
+            action=action, 
             details={
                 "file_tested": current_file,
                 "iteration": iteration,
@@ -123,7 +121,6 @@ class JudgeAgent(BaseAgent):
             status="SUCCESS" if passed else "FAILURE"
         )
         
-        # Return result
         if passed:
             return self._handle_test_success(state, test_file, new_score)
         else:
@@ -173,7 +170,7 @@ class JudgeAgent(BaseAgent):
             self._log("Generating basic tests...")
             test_file = self.test_tools.create_basic_test(file_path)
             result = self.test_tools.run_pytest(file_path, test_file)
-            result["generated_tests"] = True  # ✅ Tests générés !
+            result["generated_tests"] = True 
             return result
     
     def _evaluate_success(
@@ -195,15 +192,12 @@ class JudgeAgent(BaseAgent):
         Returns:
             True if code is acceptable
         """
-        # Minimum requirements
         if not syntax_valid:
             return False
         
         if not runs_without_error:
             return False
         
-        # Prefer improvements, but accept if no regression
-        # Tests are nice to have but not required (many buggy files have no tests)
         return pylint_improved or tests_passed
     
     def _handle_test_success(self, state: Dict[str, Any], test_file: str, score: float) -> Dict[str, Any]:
@@ -220,7 +214,6 @@ class JudgeAgent(BaseAgent):
         """
         self._log(" Tests PASSED")
         
-        # Update the original file with the fixed version
         try:
             original_file = state.get("current_file")
             fixed_code = state.get("fixed_content")

@@ -11,7 +11,6 @@ from src.agents.fixer_agent import FixerAgent
 from src.agents.judge_agent import JudgeAgent
 
 
-# Singleton agent instances (created once, reused for all files)
 _auditor = None
 _fixer = None
 _judge = None
@@ -60,7 +59,6 @@ def audit_node(state: WorkflowState) -> Dict[str, Any]:
     auditor = _get_auditor()
     updates = auditor.execute(state)
     
-    # Move to next phase
     updates["current_phase"] = "fix"
     
     return updates
@@ -115,7 +113,6 @@ def test_node(state: WorkflowState) -> Dict[str, Any]:
     updates = judge.execute(state)
     
     # The Judge sets current_phase based on test results
-    # We don't override it here
     
     return updates
 

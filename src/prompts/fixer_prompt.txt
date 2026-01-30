@@ -94,16 +94,16 @@ CRITICAL OUTPUT REQUIREMENTS:
 - Must be syntactically valid and executable
 
 Example of what NOT to do:
-❌ "Here's the fixed code:"
-❌ ```python
-❌ Any preamble or explanation
+ "Here's the fixed code:"
+ ```python
+ Any preamble or explanation
 
 Example of correct output:
-✅ """
-✅ Module docstring here.
-✅ """
-✅ 
-✅ def fixed_function():
-✅     """Function docstring."""
-✅     pass
+ """
+ Module docstring here.
+ """
+ 
+ def fixed_function():
+     """Function docstring."""
+     pass
 >>>>>>> 6e763dc1b5d5dba0ea4282c3a7990eb05f9a389e

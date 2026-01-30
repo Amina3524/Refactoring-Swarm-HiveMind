@@ -44,7 +44,6 @@ def should_retry_fix(state: WorkflowState) -> Literal["fix", "done", "error"]:
             return "error"
     
     else:
-        # Unknown phase, default to error
         print(f"  Unknown phase: {current_phase}, ending")
         return "error"
 
