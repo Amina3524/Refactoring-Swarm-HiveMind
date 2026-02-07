@@ -17,7 +17,7 @@ class AnalysisTools:
     
     def __init__(self):
         """Initialize analysis tools."""
-        print("🔍 Analysis tools initialized")
+        print("[ANALYSIS] Analysis tools initialized")
     
     def run_pylint(self, file_path: str) -> Dict[str, Any]:
         """
@@ -51,7 +51,7 @@ class AnalysisTools:
             # **AMÉLIORATION : Calculer notre propre score**
             score = self._calculate_enhanced_score(issues, result.stderr)
             
-            print(f"📊 Pylint score: {score:.2f}/10 ({len(issues)} issues)")
+            print(f"[ANALYSIS] Pylint score: {score:.2f}/10 ({len(issues)} issues)")
             
             # Afficher les types d'issues pour debug
             if issues:
@@ -59,7 +59,7 @@ class AnalysisTools:
                 for issue in issues:
                     t = issue.get('type', 'unknown')
                     types[t] = types.get(t, 0) + 1
-                print(f"   Issues by type: {types}")
+                print(f"[ANALYSIS] Issues by type: {types}")
             
             return {
                 "score": score,
@@ -122,7 +122,7 @@ class AnalysisTools:
         # S'assurer que le score est entre 0 et 10
         calculated_score = max(0.0, min(10.0, calculated_score))
         
-        print(f"   Calculated score: errors={error_count}, warnings={warning_count}, conventions={convention_count}")
+        print(f"[ANALYSIS] Calculated score: errors={error_count}, warnings={warning_count}, conventions={convention_count}")
         
         return round(calculated_score, 2)
     
@@ -174,7 +174,7 @@ class AnalysisTools:
                                     pass
         
         except Exception as e:
-            print(f"⚠️  Error extracting pylint score: {e}")
+            print(f"[ANALYSIS] Error extracting pylint score: {e}")
         
         return 0.0
     

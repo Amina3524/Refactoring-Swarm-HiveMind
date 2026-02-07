@@ -23,7 +23,6 @@ class BaseAgent(ABC):
         self.name = name
         print(f"[CREATED] {name} created")
     
-    
     @abstractmethod
     def execute(self, state: Dict[str, Any]) -> Dict[str, Any]:
         """
