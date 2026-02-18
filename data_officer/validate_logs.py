@@ -1,6 +1,6 @@
 """
 VALIDATEUR STRICT DES LOGS - Data Officer (VERSION 2.0)
-Vérifie que experiment_data.json respecte les critères du TP.
+Verifie que experiment_data.json respecte les criteres du TP.
 """
 
 import json
@@ -29,7 +29,7 @@ VALID_STATUSES = ['SUCCESS', 'FAILURE']
 # === FONCTIONS UTILITAIRES ===
 
 def get_agent_base_name(agent_name: str) -> str:
-    """Détecte le type d'agent avec pattern matching."""
+    """Detecte le type d'agent avec pattern matching."""
     if not agent_name:
         return "UNKNOWN"
     
@@ -77,13 +77,13 @@ def get_log_file_path() -> str:
 
 def validate_strict_format() -> Tuple[bool, List[str], Dict[str, Any]]:
     """
-    Validation STRICTE selon les critères du TP.
+    Validation STRICTE selon les criteres du TP.
     Retourne: (is_valid, errors, statistics)
     """
     
     log_file = get_log_file_path()
     
-    print("🔍 VALIDATION STRICTE DES LOGS - VERSION 2.0")
+    print("[VALIDATION] VALIDATION STRICTE DES LOGS - VERSION 2.0")
     print("=" * 80)
     print(f"Fichier: {log_file}")
     print(f"Validation: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
@@ -102,34 +102,34 @@ def validate_strict_format() -> Tuple[bool, List[str], Dict[str, Any]]:
         "agents_detected": set()
     }
     
-    # ===== CRITÈRE 1: FICHIER EXISTE =====
+    # ===== CRITERE 1: FICHIER EXISTE =====
     if not os.path.exists(log_file):
-        error_msg = "❌ CRITIQUE: Fichier logs/experiment_data.json introuvable"
+        error_msg = "[ERROR] CRITIQUE: Fichier logs/experiment_data.json introuvable"
         print(error_msg)
         errors.append(error_msg)
         return False, errors, statistics
     
-    # ===== CRITÈRE 2: TAILLE MINIMALE =====
+    # ===== CRITERE 2: TAILLE MINIMALE =====
     size = os.path.getsize(log_file)
     statistics["file_size"] = size
-    print(f"📏 Taille fichier: {size} octets")
+    print(f"[INFO] Taille fichier: {size} octets")
     
     if size < 100:
-        warning = "⚠️  Fichier très petit (moins de 100 octets)"
+        warning = "[WARNING] Fichier tres petit (moins de 100 octets)"
         warnings.append(warning)
         print(warning)
     
-    # ===== CRITÈRE 3: JSON VALIDE =====
+    # ===== CRITERE 3: JSON VALIDE =====
     try:
         with open(log_file, 'r', encoding='utf-8') as f:
             logs = json.load(f)
     except json.JSONDecodeError as e:
-        error_msg = f"❌ JSON INVALIDE: {str(e)[:100]}"
+        error_msg = f"[ERROR] JSON INVALIDE: {str(e)[:100]}"
         print(error_msg)
         errors.append(error_msg)
         return False, errors, statistics
     except Exception as e:
-        error_msg = f"❌ ERREUR LECTURE: {str(e)}"
+        error_msg = f"[ERROR] ERREUR LECTURE: {str(e)}"
         print(error_msg)
         errors.append(error_msg)
         return False, errors, statistics
@@ -141,14 +141,14 @@ def validate_strict_format() -> Tuple[bool, List[str], Dict[str, Any]]:
     statistics["total_entries"] = len(logs)
     
     if len(logs) == 0:
-        error_msg = "❌ Fichier vide - aucune entrée de log"
+        error_msg = "[ERROR] Fichier vide - aucune entree de log"
         print(error_msg)
         errors.append(error_msg)
         return False, errors, statistics
     
-    print(f"📊 Entrées trouvées: {len(logs)}")
+    print(f"[INFO] Entrees trouvees: {len(logs)}")
     
-    # ===== CRITÈRES OBLIGATOIRES DU TP =====
+    # ===== CRITERES OBLIGATOIRES DU TP =====
     required_fields = ['agent', 'model', 'action', 'details', 'timestamp', 'status']
     required_agents = {'Auditor', 'Fixer', 'Judge'}
     
@@ -192,33 +192,33 @@ def validate_strict_format() -> Tuple[bool, List[str], Dict[str, Any]]:
         if 'model' in entry:
             model = entry.get('model')
             if not model:
-                entry_errors.append("'model' ne peut pas être vide")
+                entry_errors.append("'model' ne peut pas etre vide")
             elif not isinstance(model, str):
-                entry_errors.append("'model' doit être un string")
+                entry_errors.append("'model' doit etre un string")
         
         # === AGENT VALIDE ===
         if 'agent' in entry:
             agent = entry['agent']
             if not agent:
-                entry_errors.append("'agent' ne peut pas être vide")
+                entry_errors.append("'agent' ne peut pas etre vide")
             elif not isinstance(agent, str):
-                entry_errors.append("'agent' doit être un string")
+                entry_errors.append("'agent' doit etre un string")
             else:
                 statistics["by_agent"][agent] = \
                     statistics["by_agent"].get(agent, 0) + 1
                 base_name = get_agent_base_name(agent)
                 statistics["agents_detected"].add(base_name)
         
-        # === DÉTAILS (Bloc principal) ===
+        # === DETAILS (Bloc principal) ===
         if 'details' in entry:
             details = entry['details']
             
             if not isinstance(details, dict):
-                entry_errors.append("'details' doit être un dictionnaire")
+                entry_errors.append("'details' doit etre un dictionnaire")
                 if entry_errors:
-                    errors.append(f"Entrée {i}: {'; '.join(entry_errors)}")
+                    errors.append(f"Entree {i}: {'; '.join(entry_errors)}")
                 if entry_warnings:
-                    warnings.extend([f"Entrée {i}: {w}" for w in entry_warnings])
+                    warnings.extend([f"Entree {i}: {w}" for w in entry_warnings])
                 continue
             
             # Validation conditionnelle selon action
@@ -239,7 +239,7 @@ def validate_strict_format() -> Tuple[bool, List[str], Dict[str, Any]]:
                     all_prompts.append(prompt[:200])
                     if len(prompt) < 15:
                         entry_warnings.append(
-                            f"'input_prompt' très court ({len(prompt)} chars)"
+                            f"'input_prompt' tres court ({len(prompt)} chars)"
                         )
                 
                 # output_response OBLIGATOIRE
@@ -256,10 +256,10 @@ def validate_strict_format() -> Tuple[bool, List[str], Dict[str, Any]]:
                     all_responses.append(response[:200])
                     if len(response) < 5:
                         entry_warnings.append(
-                            f"'output_response' très court ({len(response)} chars)"
+                            f"'output_response' tres court ({len(response)} chars)"
                         )
             
-            # === DÉTECTION ITERATION COUNT (TP Requirement) ===
+            # === DETECTION ITERATION COUNT (TP Requirement) ===
             if 'metadata' in details:
                 metadata = details.get('metadata')
                 if isinstance(metadata, dict) and 'iteration' in metadata:
@@ -267,18 +267,18 @@ def validate_strict_format() -> Tuple[bool, List[str], Dict[str, Any]]:
                     
                     if not isinstance(iteration, int):
                         entry_warnings.append(
-                            f"'metadata.iteration' doit être entier"
+                            f"'metadata.iteration' doit etre entier"
                         )
                     elif iteration > 10:
                         entry_errors.append(
-                            f"Itération {iteration} dépasse le maximum (10)"
+                            f"Iteration {iteration} depasse le maximum (10)"
                         )
                     
                     statistics["max_iteration"] = max(
                         statistics.get("max_iteration", 0), iteration
                     )
             
-            # === SÉCURITÉ SANDBOX ===
+            # === SECURITE SANDBOX ===
             for key, value in details.items():
                 if isinstance(value, str) and '..' in value:
                     if 'sandbox' not in value.lower():
@@ -293,13 +293,13 @@ def validate_strict_format() -> Tuple[bool, List[str], Dict[str, Any]]:
             if not validate_timestamp(timestamp):
                 entry_errors.append(
                     f"Format timestamp invalide: '{timestamp}' "
-                    f"(doit être ISO 8601)"
+                    f"(doit etre ISO 8601)"
                 )
         
         if entry_errors:
-            errors.append(f"Entrée {i}: {'; '.join(entry_errors)}")
+            errors.append(f"Entree {i}: {'; '.join(entry_errors)}")
         if entry_warnings:
-            warnings.extend([f"Entrée {i}: {w}" for w in entry_warnings])
+            warnings.extend([f"Entree {i}: {w}" for w in entry_warnings])
     
     # ===== POST-PROCESSING =====
     
@@ -309,14 +309,14 @@ def validate_strict_format() -> Tuple[bool, List[str], Dict[str, Any]]:
     
     if missing_agents:
         error_msg = f"Agents requis manquants: {', '.join(missing_agents)}"
-        print(f"❌ {error_msg}")
+        print(f"[ERROR] {error_msg}")
         errors.append(error_msg)
     else:
-        print(f"✅ Tous les agents requis détectés: {', '.join(sorted(agents_found))}")
+        print(f"[SUCCESS] Tous les agents requis detectes: {', '.join(sorted(agents_found))}")
     
-    # === SUFFISAMMENT D'ENTRÉES ===
+    # === SUFFISAMMENT D'ENTREES ===
     if len(logs) < 5:
-        warning_msg = f"⚠️  Peu d'entrées ({len(logs)}). Minimum: 5"
+        warning_msg = f"[WARNING] Peu d'entrees ({len(logs)}). Minimum: 5"
         warnings.append(warning_msg)
         print(warning_msg)
     
@@ -328,96 +328,95 @@ def validate_strict_format() -> Tuple[bool, List[str], Dict[str, Any]]:
         "total_responses": len(all_responses)
     }
     
-    # ===== AFFICHAGE RÉSULTATS =====
+    # ===== AFFICHAGE RESULTATS =====
     print("\n" + "=" * 80)
-    print("📋 RÉSULTATS DE VALIDATION")
+    print("RESULTATS DE VALIDATION")
     print("=" * 80)
     
     if errors:
-        print(f"❌ {len(errors)} ERREUR(S) CRITIQUE(S):")
+        print(f"[ERROR] {len(errors)} ERREUR(S) CRITIQUE(S):")
         for error in errors[:5]:
-            print(f"  • {error}")
+            print(f"  - {error}")
         if len(errors) > 5:
             print(f"  ... et {len(errors) - 5} autres erreurs")
     else:
-        print("✅ AUCUNE ERREUR CRITIQUE DÉTECTÉE")
+        print("[SUCCESS] AUCUNE ERREUR CRITIQUE DETECTEE")
     
     if warnings:
-        print(f"\n⚠️  {len(warnings)} AVERTISSEMENT(S):")
+        print(f"\n[WARNING] {len(warnings)} AVERTISSEMENT(S):")
         for warning in warnings[:5]:
-            print(f"  • {warning}")
+            print(f"  - {warning}")
         if len(warnings) > 5:
             print(f"  ... et {len(warnings) - 5} autres")
     
     # === STATISTIQUES ===
-    print("\n📈 STATISTIQUES DÉTAILLÉES:")
-    print(f"  Entrées totales: {statistics['total_entries']}")
+    print("\nSTATISTIQUES DETAILLEES:")
+    print(f"  Entrees totales: {statistics['total_entries']}")
     
     if statistics['by_action']:
-        print("  Répartition par action:")
+        print("  Repartition par action:")
         for action, count in sorted(statistics['by_action'].items()):
             percentage = (count / statistics['total_entries']) * 100
-            print(f"    • {action}: {count} ({percentage:.1f}%)")
+            print(f"    - {action}: {count} ({percentage:.1f}%)")
     
     if statistics['by_agent']:
-        print("  Répartition par agent:")
+        print("  Repartition par agent:")
         for agent, count in sorted(
             statistics['by_agent'].items(), 
             key=lambda x: x[1], 
             reverse=True
         )[:5]:
             percentage = (count / statistics['total_entries']) * 100
-            print(f"    • {agent}: {count} ({percentage:.1f}%)")
+            print(f"    - {agent}: {count} ({percentage:.1f}%)")
     
-    print("  Répartition par status:")
+    print("  Repartition par status:")
     for status in ['SUCCESS', 'FAILURE']:
         count = statistics['by_status'].get(status, 0)
         percentage = (count / statistics['total_entries']) * 100 \
                      if statistics['total_entries'] > 0 else 0
-        icon = {'SUCCESS': '✅', 'FAILURE': '❌'}.get(status, '❓')
-        print(f"    {icon} {status}: {count} ({percentage:.1f}%)")
+        print(f"    - {status}: {count} ({percentage:.1f}%)")
     
-    # === SCORE QUALITÉ ===
+    # === SCORE QUALITE ===
     quality_score = calculate_quality_score(statistics, errors, warnings)
     statistics['quality_score'] = quality_score
     
-    print(f"\n🎯 SCORE DE QUALITÉ: {quality_score}/100")
+    print(f"\nSCORE DE QUALITE: {quality_score}/100")
     if quality_score >= 90:
-        print("   🟢 EXCELLENT - Prêt pour soumission")
+        print("   [EXCELLENT] Pret pour soumission")
     elif quality_score >= 70:
-        print("   🟡 BON - Quelques améliorations possibles")
+        print("   [BON] Quelques ameliorations possibles")
     elif quality_score >= 50:
-        print("   🟠 MOYEN - Corrections recommandées")
+        print("   [MOYEN] Corrections recommandees")
     else:
-        print("   🔴 FAIBLE - Corrections critiques nécessaires")
+        print("   [FAIBLE] Corrections critiques necessaires")
     
     # === VALIDATION FINALE ===
     is_ready_for_evaluation = len(errors) == 0 and quality_score >= 70
     
     print("\n" + "=" * 80)
     if is_ready_for_evaluation:
-        print("🎉 VALIDATION RÉUSSIE!")
-        print("   Les logs respectent TOUS les critères du TP.")
-        print("   ✅ Prêt pour l'évaluation automatisée.")
+        print("[SUCCESS] VALIDATION REUSSIE!")
+        print("   Les logs respectent TOUS les criteres du TP.")
+        print("   Pret pour l'evaluation automatisee.")
     else:
         if errors:
-            print("🚨 VALIDATION ÉCHOUÉE")
-            print("   ❌ Erreurs critiques détectées.")
+            print("[ERROR] VALIDATION ECHOUEE")
+            print("   Erreurs critiques detectees.")
         else:
-            print("⚠️  VALIDATION PARTIELLE")
+            print("[WARNING] VALIDATION PARTIELLE")
             print("   Score < 70. Corriger les warnings.")
-        print("   ➜ Corriger les problèmes avant la soumission.")
+        print("   -> Corriger les problemes avant la soumission.")
     
     print("=" * 80)
     
-    # Convertir set en list pour sérialisation
+    # Convertir set en list pour serialisation
     statistics["agents_detected"] = list(statistics["agents_detected"])
     
     return is_ready_for_evaluation, errors, statistics
 
 
 def calculate_quality_score(statistics: Dict, errors: List[str], warnings: List[str]) -> int:
-    """Calcule un score de qualité sur 100."""
+    """Calcule un score de qualite sur 100."""
     score = 100
     
     score -= len(errors) * 15
@@ -451,15 +450,15 @@ def main():
     """Fonction principale."""
     success, errors, statistics = validate_strict_format()
     
-    print(f"\n📋 RÉSUMÉ EXÉCUTIF:")
-    print(f"   Fichier validé: {get_log_file_path()}")
-    print(f"   Entrées analysées: {statistics.get('total_entries', 0)}")
-    print(f"   Agents détectés: {len(statistics.get('by_agent', {}))}")
+    print(f"\nRESUME EXECUTIF:")
+    print(f"   Fichier valide: {get_log_file_path()}")
+    print(f"   Entrees analysees: {statistics.get('total_entries', 0)}")
+    print(f"   Agents detectes: {len(statistics.get('by_agent', {}))}")
     success_count = statistics.get('by_status', {}).get('SUCCESS', 0)
     total = statistics.get('total_entries', 0)
     if total > 0:
-        print(f"   Taux de succès: {success_count}/{total} ({success_count/total*100:.1f}%)")
-    print(f"   Score de qualité: {statistics.get('quality_score', 0)}/100")
+        print(f"   Taux de succes: {success_count}/{total} ({success_count/total*100:.1f}%)")
+    print(f"   Score de qualite: {statistics.get('quality_score', 0)}/100")
     
     return success
 
@@ -469,10 +468,10 @@ if __name__ == "__main__":
         success = main()
         sys.exit(0 if success else 1)
     except KeyboardInterrupt:
-        print("\n\n⏹️  Validation interrompue")
+        print("\n\nValidation interrompue")
         sys.exit(130)
     except Exception as e:
-        print(f"\n❌ ERREUR: {e}")
+        print(f"\n[ERROR] {e}")
         import traceback
         traceback.print_exc()
         sys.exit(1)
